@@ -1,0 +1,247 @@
+<section class="px-lg md:px-xl max-w-container-max mx-auto py-xxl border-b border-surface-container-high" id="contact">
+  <div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-lg">
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Start a Project</h2>
+    <p class="font-body-md text-body-md text-secondary max-w-md">Tell me about your project and business goals. Let's build something exceptional together.</p>
+  </div>
+
+  <div class="max-w-2xl mx-auto">
+    <!-- Form State Containers -->
+    <div id="form-message-container" class="hidden mb-lg p-lg border text-body-md font-medium"></div>
+
+    <form id="project-inquiry-form" class="space-y-lg">
+      <!-- Full Name & Email -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+        <div class="flex flex-col gap-xs">
+          <label for="fullName" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Full Name *</label>
+          <input type="text" id="fullName" name="fullName" required placeholder="John Doe" 
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
+        </div>
+        <div class="flex flex-col gap-xs">
+          <label for="email" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Email Address *</label>
+          <input type="email" id="email" name="email" required placeholder="john@example.com"
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
+        </div>
+      </div>
+
+      <!-- WhatsApp & Company -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+        <div class="flex flex-col gap-xs">
+          <label for="whatsapp" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">WhatsApp Number *</label>
+          <input type="text" id="whatsapp" name="whatsapp" required placeholder="+1 (234) 567-8900"
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
+        </div>
+        <div class="flex flex-col gap-xs">
+          <label for="company" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Business / Company Name</label>
+          <input type="text" id="company" name="company" placeholder="Acme Corporation"
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
+        </div>
+      </div>
+
+      <!-- Project Type & Current Website -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+        <div class="flex flex-col gap-xs">
+          <label for="projectType" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Project Type *</label>
+          <select id="projectType" name="projectType" required 
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary cursor-pointer">
+            <option value="" disabled selected>Select a project type</option>
+            <option value="Business Website">Business Website</option>
+            <option value="Landing Page">Landing Page</option>
+            <option value="E-commerce">E-commerce</option>
+            <option value="Web Application">Web Application</option>
+            <option value="AI-Powered Website">AI-Powered Website</option>
+            <option value="Website Redesign">Website Redesign</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-xs">
+          <label for="website" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Current Website URL</label>
+          <input type="text" id="website" name="website" placeholder="https://example.com"
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
+        </div>
+      </div>
+
+      <!-- Budget & Timeline -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+        <div class="flex flex-col gap-xs">
+          <label for="budget" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Budget *</label>
+          <select id="budget" name="budget" required 
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary cursor-pointer">
+            <option value="" disabled selected>Select budget range</option>
+            <option value="Under $600">Under $600</option>
+            <option value="$600 - $1,500">$600 - $1,500</option>
+            <option value="$1,500 - $3,000">$1,500 - $3,000</option>
+            <option value="$3,000 - $5,000">$3,000 - $5,000</option>
+            <option value="$5,000+">$5,000+</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-xs">
+          <label for="timeline" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Timeline *</label>
+          <select id="timeline" name="timeline" required 
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary cursor-pointer">
+            <option value="" disabled selected>Select project timeline</option>
+            <option value="ASAP">ASAP</option>
+            <option value="1–2 weeks">1–2 Weeks</option>
+            <option value="2–4 weeks">2–4 Weeks</option>
+            <option value="1–2 months">1–2 Months</option>
+            <option value="Flexible">Flexible</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="flex flex-col gap-xs">
+        <label for="description" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Project Description *</label>
+        <textarea id="description" name="description" required rows="6" placeholder="Describe the objectives, features, pages, and key integrations you need..."
+          class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary resize-y"></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <div>
+        <button type="submit" id="submit-btn" class="w-full inline-flex items-center justify-center gap-sm bg-primary text-on-primary font-body-lg text-body-lg py-md hover:bg-secondary transition-colors cursor-pointer group">
+          <span id="btn-text">Submit Project Request</span>
+          <span id="btn-icon" class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('project-inquiry-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-icon');
+    const messageContainer = document.getElementById('form-message-container');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear previous message
+      messageContainer.className = 'hidden';
+      messageContainer.innerHTML = '';
+
+      // Client-side validations
+      const fullName = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const whatsapp = document.getElementById('whatsapp').value.trim();
+      const projectType = document.getElementById('projectType').value;
+      const budget = document.getElementById('budget').value;
+      const timeline = document.getElementById('timeline').value;
+      const description = document.getElementById('description').value.trim();
+
+      if (!fullName || !email || !whatsapp || !projectType || !budget || !timeline || !description) {
+        showMessage('Please fill out all required fields.', 'error');
+        return;
+      }
+
+      if (description.length < 20) {
+        showMessage('Please provide a more detailed project description (minimum 20 characters).', 'error');
+        return;
+      }
+
+      // Enter Loading State
+      setLoadingState(true);
+
+      const formData = {
+        fullName,
+        email,
+        whatsapp,
+        company: document.getElementById('company').value.trim(),
+        projectType,
+        website: document.getElementById('website').value.trim(),
+        budget,
+        timeline,
+        description
+      };
+
+      try {
+        const response = await fetch('/api/inquiries', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Success State
+          form.reset();
+          
+          // Display success state with WhatsApp shortcut
+          const whatsappURL = `https://wa.me/<%= siteConfig.whatsapp.replace(/[^\d+]/g, '') %>?text=<%= encodeURIComponent(siteConfig.whatsappMessage) %>`;
+          
+          messageContainer.className = 'block p-lg border border-primary bg-surface text-primary mb-lg';
+          messageContainer.innerHTML = `
+            <div class="flex flex-col gap-md">
+              <div class="flex items-center gap-xs font-bold">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>Project request received.</span>
+              </div>
+              <p class="font-body-md text-secondary">
+                Thank you for reaching out! I will review your requirements and get back to you within 24 hours.
+              </p>
+              <div class="mt-sm">
+                <a href="${whatsappURL}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-xs bg-primary text-on-primary font-body-md px-md py-sm hover:opacity-85 transition-opacity">
+                  <span class="material-symbols-outlined text-base">chat</span>
+                  <span>Contact on WhatsApp directly</span>
+                </a>
+              </div>
+            </div>
+          `;
+          
+          // Scroll message container into view
+          messageContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // Error State from server
+          showMessage(result.message || 'Something went wrong. Please try again.', 'error');
+        }
+      } catch (error) {
+        console.error('Submission error:', error);
+        showMessage('Something went wrong. Please try again.', 'error');
+      } finally {
+        setLoadingState(false);
+      }
+    });
+
+    function setLoadingState(isLoading) {
+      if (isLoading) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        btnText.textContent = 'Sending your project request...';
+        btnIcon.className = 'material-symbols-outlined animate-spin';
+        btnIcon.textContent = 'progress_activity';
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+        btnText.textContent = 'Submit Project Request';
+        btnIcon.className = 'material-symbols-outlined group-hover:translate-x-1 transition-transform';
+        btnIcon.textContent = 'arrow_forward';
+      }
+    }
+
+    function showMessage(text, type) {
+      messageContainer.className = 'block p-lg border text-body-md font-medium mb-lg';
+      if (type === 'error') {
+        messageContainer.classList.add('border-error', 'text-error', 'bg-error-container/20');
+        messageContainer.innerHTML = `
+          <div class="flex items-center gap-xs">
+            <span class="material-symbols-outlined text-base">error</span>
+            <span>${text}</span>
+          </div>
+        `;
+      } else {
+        messageContainer.classList.add('border-primary', 'text-primary', 'bg-surface');
+        messageContainer.innerHTML = `
+          <div class="flex items-center gap-xs">
+            <span class="material-symbols-outlined text-base">check_circle</span>
+            <span>${text}</span>
+          </div>
+        `;
+      }
+      messageContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+</script>

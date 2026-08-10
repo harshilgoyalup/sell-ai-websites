@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Admin Login | <%= siteConfig.name %></title>
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Geist Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Geist', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased flex flex-col min-h-screen justify-between">
+
+  <!-- Header Component -->
+  <%- include('../components/header') %>
+
+  <!-- Main Login Content -->
+  <main class="flex-1 flex flex-col justify-center px-lg md:px-xl max-w-container-max mx-auto py-xxl w-full max-w-md">
+    <div class="border border-outline-variant p-lg md:p-xl bg-surface-container-lowest">
+      <div class="mb-lg">
+        <span class="font-label-sm-caps text-label-sm-caps text-secondary block mb-xs uppercase tracking-widest">SECURE ACCESS</span>
+        <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">Admin Dashboard</h1>
+      </div>
+
+      <% if (error) { %>
+        <div class="mb-lg p-md border border-error text-error text-body-md bg-error-container/20 flex items-center gap-xs">
+          <span class="material-symbols-outlined text-base">error</span>
+          <span><%= error %></span>
+        </div>
+      <% } %>
+
+      <form action="/admin/login" method="POST" class="space-y-md">
+        <div class="flex flex-col gap-xs">
+          <label for="username" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Username</label>
+          <input type="text" id="username" name="username" required placeholder="admin"
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
+        </div>
+
+        <div class="flex flex-col gap-xs">
+          <label for="password" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Password</label>
+          <input type="password" id="password" name="password" required placeholder="••••••••"
+            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
+        </div>
+
+        <div class="pt-sm">
+          <button type="submit" class="w-full inline-flex items-center justify-center gap-sm bg-primary text-on-primary font-body-lg text-body-lg py-md hover:bg-secondary transition-colors cursor-pointer">
+            Access Dashboard
+            <span class="material-symbols-outlined">login</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer Component -->
+  <%- include('../components/footer') %>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Node modules
+node_modules/
+
+# Local env files (MUST be ignored to protect secrets)
+.env
+.env.local
+.env.production
+
+# SQLite databases
+*.sqlite
+*.db
+database/database.sqlite
+database/*.sqlite
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+database/emails.log
+
+# Operating system files
+.DS_Store
+Thumbs.db

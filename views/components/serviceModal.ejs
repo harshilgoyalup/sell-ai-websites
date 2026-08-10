@@ -1,0 +1,131 @@
+<!-- Service Details Modal Overlay (Hidden by default) -->
+<div id="service-modal" class="fixed inset-0 z-50 flex items-center justify-center p-md bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+  <div class="bg-surface-container-lowest dark:bg-surface-dim w-full max-w-lg border border-outline-variant dark:border-outline p-lg md:p-xl shadow-xl flex flex-col relative transform scale-95 transition-transform duration-300">
+    <!-- Close Button -->
+    <button id="close-service-modal" class="absolute top-md right-md text-secondary dark:text-on-surface-variant hover:text-primary dark:hover:text-on-surface p-sm cursor-pointer">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <div class="mb-lg">
+      <span id="modal-service-id" class="font-label-sm-caps text-label-sm-caps text-secondary block mb-sm">01</span>
+      <h3 id="modal-service-name" class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold tracking-tight">Business Websites</h3>
+    </div>
+
+    <div class="flex-1 overflow-y-auto mb-lg max-h-[50vh] pr-sm">
+      <p id="modal-service-description" class="font-body-md text-body-md text-secondary mb-lg">
+        Robust, scalable platforms representing your corporate identity with absolute clarity.
+      </p>
+
+      <div class="mb-lg">
+        <h4 class="font-label-sm-caps text-label-sm-caps text-primary uppercase tracking-wider mb-sm">What is Included</h4>
+        <ul id="modal-service-features" class="space-y-xs list-none pl-0">
+          <!-- Populated by JavaScript -->
+        </ul>
+      </div>
+
+      <div class="grid grid-cols-2 gap-md border-t border-outline-variant pt-md">
+        <div>
+          <span class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider block mb-xs">Timeline</span>
+          <span id="modal-service-timeline" class="font-body-md text-body-md font-bold text-primary">2-3 Weeks</span>
+        </div>
+        <div>
+          <span class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider block mb-xs">Starting Price</span>
+          <span id="modal-service-price" class="font-body-md text-body-md font-bold text-primary">$1,200</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <button id="modal-cta-button" class="w-full inline-flex items-center justify-center gap-sm bg-primary text-on-primary font-body-lg text-body-lg py-md hover:bg-secondary transition-colors group cursor-pointer">
+        Start Your Project
+        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Expose services data to client script
+  const clientServicesData = <%- JSON.stringify(services) %>;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('service-modal');
+    const modalContent = modal.querySelector('div');
+    const closeBtn = document.getElementById('close-service-modal');
+    const ctaBtn = document.getElementById('modal-cta-button');
+
+    const modalId = document.getElementById('modal-service-id');
+    const modalName = document.getElementById('modal-service-name');
+    const modalDesc = document.getElementById('modal-service-description');
+    const modalFeatures = document.getElementById('modal-service-features');
+    const modalTimeline = document.getElementById('modal-service-timeline');
+    const modalPrice = document.getElementById('modal-service-price');
+
+    let currentServiceName = "";
+
+    window.openServiceModal = function(serviceId) {
+      const service = clientServicesData.find(s => s.id === serviceId);
+      if (!service) return;
+
+      currentServiceName = service.name;
+      modalId.textContent = service.id;
+      modalName.textContent = service.name;
+      modalDesc.textContent = service.description;
+      modalTimeline.textContent = service.timeline;
+      modalPrice.textContent = service.startingPrice;
+
+      // Populate features
+      modalFeatures.innerHTML = '';
+      service.features.forEach(feature => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center gap-xs font-body-md text-body-md text-secondary';
+        li.innerHTML = `<span class="material-symbols-outlined text-primary text-base">check</span> <span>${feature}</span>`;
+        modalFeatures.appendChild(li);
+      });
+
+      // Show modal
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modalContent.classList.remove('scale-95');
+      }, 10);
+      document.body.style.overflow = 'hidden';
+    };
+
+    function closeServiceModal() {
+      modal.classList.add('opacity-0');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+      document.body.style.overflow = '';
+    }
+
+    closeBtn.addEventListener('click', closeServiceModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeServiceModal();
+    });
+
+    ctaBtn.addEventListener('click', () => {
+      closeServiceModal();
+      
+      // Navigate to contact form
+      window.location.hash = 'contact';
+      
+      // Auto-select corresponding project type in form
+      const projectTypeSelect = document.getElementById('projectType');
+      if (projectTypeSelect) {
+        // Map service name to form project types
+        let mappedType = 'Other';
+        if (currentServiceName.includes('Business')) mappedType = 'Business Website';
+        else if (currentServiceName.includes('Landing')) mappedType = 'Landing Page';
+        else if (currentServiceName.includes('commerce')) mappedType = 'E-commerce';
+        else if (currentServiceName.includes('Application')) mappedType = 'Web Application';
+        else if (currentServiceName.includes('AI')) mappedType = 'AI-Powered Website';
+        else if (currentServiceName.includes('Redesign')) mappedType = 'Website Redesign';
+        
+        projectTypeSelect.value = mappedType;
+      }
+    });
+  });
+</script>

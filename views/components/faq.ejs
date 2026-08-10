@@ -1,0 +1,20 @@
+<section class="px-lg md:px-xl max-w-container-max mx-auto py-xxl border-b border-surface-container-high" id="faq">
+  <div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-lg">
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Frequently Asked Questions</h2>
+    <p class="font-body-md text-body-md text-secondary max-w-md">Find quick answers to common questions about services, pricing, process, and support.</p>
+  </div>
+
+  <div class="max-w-3xl mx-auto space-y-md">
+    <% faqs.forEach((faq, index) => { %>
+      <details class="group border-b border-outline-variant pb-md">
+        <summary class="flex justify-between items-center cursor-pointer select-none py-sm text-primary hover:text-secondary transition-colors duration-300">
+          <span class="font-headline-md text-headline-md font-bold tracking-tight text-left"><%= faq.question %></span>
+          <span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-45">add</span>
+        </summary>
+        <div class="mt-sm pr-lg transition-all duration-300">
+          <p class="font-body-md text-body-md text-secondary leading-relaxed"><%= faq.answer %></p>
+        </div>
+      </details>
+    <% }) %>
+  </div>
+</section>

@@ -1,0 +1,20 @@
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest dark:bg-surface-dim border-b border-outline-variant dark:border-outline">
+  <div class="flex justify-between items-center h-20 px-lg md:px-xl max-w-container-max mx-auto">
+    <a href="/" class="flex items-center gap-sm hover:opacity-80 transition-opacity">
+      <span class="material-symbols-outlined text-primary dark:text-on-surface" data-weight="fill" style="font-variation-settings: 'FILL' 1;">terminal</span>
+      <span class="font-headline-md text-headline-md font-bold text-primary dark:text-on-surface tracking-tighter"><%= siteConfig.name %></span>
+    </a>
+    <nav class="hidden md:flex gap-lg items-center">
+      <a class="text-secondary dark:text-on-surface-variant font-body-md text-body-md hover:text-primary dark:hover:text-on-surface transition-colors duration-300" href="/#services">Services</a>
+      <a class="text-secondary dark:text-on-surface-variant font-body-md text-body-md hover:text-primary dark:hover:text-on-surface transition-colors duration-300" href="/#work">Work</a>
+      <a class="text-secondary dark:text-on-surface-variant font-body-md text-body-md hover:text-primary dark:hover:text-on-surface transition-colors duration-300" href="/#pricing">Pricing</a>
+      <a class="text-secondary dark:text-on-surface-variant font-body-md text-body-md hover:text-primary dark:hover:text-on-surface transition-colors duration-300" href="/#faq">FAQ</a>
+    </nav>
+    <a href="/#contact" class="hidden md:block bg-primary text-on-primary font-body-md text-body-md px-md py-sm hover:opacity-80 transition-opacity cursor-pointer active:opacity-70 text-center">
+      Start a Project
+    </a>
+    <button class="md:hidden text-primary dark:text-on-surface p-sm cursor-pointer active:opacity-70" id="menu-toggle">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+  </div>
+</header>

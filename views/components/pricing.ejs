@@ -1,0 +1,60 @@
+<section class="px-lg md:px-xl max-w-container-max mx-auto py-xxl border-b border-surface-container-high" id="pricing">
+  <div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-lg">
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Pricing Packages</h2>
+    <p class="font-body-md text-body-md text-secondary max-w-md">Simple pricing structures tailored to your scale. Custom quotes available upon request.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+    <% pricing.forEach(pkg => { %>
+      <div class="border border-outline-variant p-lg md:p-xl flex flex-col justify-between relative hover:shadow-md transition-shadow duration-300 bg-surface-container-lowest <%= pkg.recommended ? 'border-primary ring-1 ring-primary' : '' %>">
+        <% if (pkg.recommended) { %>
+          <span class="absolute top-0 right-lg -translate-y-1/2 bg-primary text-on-primary font-label-sm-caps text-[10px] px-sm py-[2px] uppercase tracking-widest">
+            RECOMMENDED
+          </span>
+        <% } %>
+        <div>
+          <span class="font-label-sm-caps text-label-sm-caps text-secondary block mb-md"><%= pkg.name %></span>
+          <h3 class="font-headline-xl-mobile text-headline-xl-mobile font-bold text-primary tracking-tight leading-none mb-sm"><%= pkg.price %></h3>
+          <p class="font-body-md text-body-md text-secondary mb-lg"><%= pkg.description %></p>
+          
+          <ul class="space-y-sm mb-xl list-none pl-0 border-t border-outline-variant pt-lg">
+            <% pkg.features.forEach(feature => { %>
+              <li class="flex items-center gap-xs font-body-md text-body-md text-secondary">
+                <span class="material-symbols-outlined text-primary text-base">check</span>
+                <span><%= feature %></span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+        
+        <div>
+          <button onclick="choosePricingPackage('<%= pkg.id %>')" class="w-full inline-flex items-center justify-center gap-xs font-body-md text-body-md py-md px-md transition-all border border-primary <%= pkg.recommended ? 'bg-primary text-on-primary hover:opacity-85' : 'bg-transparent text-primary hover:bg-surface' %> cursor-pointer">
+            Get Started
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<script>
+  function choosePricingPackage(packageId) {
+    // Navigate to contact form
+    window.location.hash = 'contact';
+    
+    const budgetSelect = document.getElementById('budget');
+    const descTextarea = document.getElementById('description');
+    
+    if (packageId === 'starter') {
+      if (budgetSelect) budgetSelect.value = '$600 - $1,500';
+      if (descTextarea) descTextarea.value = "Hi Harshil, I'm interested in the STARTER package ($600). Details of my project: ";
+    } else if (packageId === 'professional') {
+      if (budgetSelect) budgetSelect.value = '$1,500 - $3,000';
+      if (descTextarea) descTextarea.value = "Hi Harshil, I'm interested in the PROFESSIONAL package ($1,500). Details of my project: ";
+    } else if (packageId === 'custom') {
+      if (budgetSelect) budgetSelect.value = '$5,000+';
+      if (descTextarea) descTextarea.value = "Hi Harshil, I would like to get a custom quote for my project. Details: ";
+    }
+  }
+</script>

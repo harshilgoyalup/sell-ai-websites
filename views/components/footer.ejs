@@ -1,0 +1,30 @@
+<footer class="bg-surface-container-lowest dark:bg-surface-dim border-t border-outline-variant dark:border-outline w-full">
+  <div class="py-xxl px-lg md:px-xl max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+    <div>
+      <span class="font-label-sm-caps text-label-sm-caps text-primary dark:text-on-surface block mb-sm">
+        <%= siteConfig.name.toUpperCase() %>
+      </span>
+      <p class="font-body-md text-body-md text-secondary dark:text-on-surface-variant">
+        &copy; <%= new Date().getFullYear() %> <%= siteConfig.name %>. All rights reserved.
+      </p>
+    </div>
+    <nav class="flex flex-wrap gap-md">
+      <% if (siteConfig.twitter) { %>
+        <a class="font-body-md text-body-md text-secondary dark:text-on-surface-variant hover:text-primary dark:hover:text-on-surface underline transition-all hover:opacity-80" href="<%= siteConfig.twitter %>" target="_blank" rel="noopener noreferrer">Twitter</a>
+      <% } %>
+      <% if (siteConfig.linkedin) { %>
+        <a class="font-body-md text-body-md text-secondary dark:text-on-surface-variant hover:text-primary dark:hover:text-on-surface underline transition-all hover:opacity-80" href="<%= siteConfig.linkedin %>" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <% } %>
+      <% if (siteConfig.github) { %>
+        <a class="font-body-md text-body-md text-secondary dark:text-on-surface-variant hover:text-primary dark:hover:text-on-surface underline transition-all hover:opacity-80" href="<%= siteConfig.github %>" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <% } %>
+      <% if (siteConfig.email) { %>
+        <% 
+          const subject = encodeURIComponent("New Website Project Inquiry");
+          const body = encodeURIComponent("Hi Harshil,\n\nI would like to discuss a web development project.\nHere are some initial details:\n- Project Type: \n- Budget Range: \n- Key Goals: \n\nLooking forward to hearing from you.");
+        %>
+        <a class="font-body-md text-body-md text-secondary dark:text-on-surface-variant hover:text-primary dark:hover:text-on-surface underline transition-all hover:opacity-80" href="mailto:<%= siteConfig.email %>?subject=<%= subject %>&body=<%= body %>">Email</a>
+      <% } %>
+    </nav>
+  </div>
+</footer>

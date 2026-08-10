@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title><%= siteConfig.name %> | Minimalist Web-Development Services</title>
+  <meta name="description" content="Premium minimalist web design and development services. Customized business websites, e-commerce storefronts, and AI integrations."/>
+  
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Geist Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+  
+  <!-- Font Load & Base Styles -->
+  <style>
+    body {
+      font-family: 'Geist', sans-serif;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    details > summary {
+      list-style: none;
+    }
+    details > summary::-webkit-details-marker {
+      display: none;
+    }
+  </style>
+
+  <!-- Tailwind Config -->
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-lowest": "#ffffff",
+            "error": "#ba1a1a",
+            "surface-container-highest": "#e2e2e2",
+            "surface-dim": "#dadada",
+            "on-surface": "#1a1c1c",
+            "secondary-fixed": "#e3e2e2",
+            "primary-container": "#1b1b1b",
+            "on-primary-fixed-variant": "#474747",
+            "on-tertiary-container": "#838484",
+            "secondary": "#5e5e5e",
+            "background": "#f9f9f9",
+            "inverse-primary": "#c6c6c6",
+            "tertiary-fixed-dim": "#c7c6c6",
+            "outline-variant": "#cfc4c5",
+            "surface": "#f9f9f9",
+            "on-secondary-fixed-variant": "#464747",
+            "on-error": "#ffffff",
+            "on-tertiary": "#ffffff",
+            "surface-container-high": "#e8e8e8",
+            "surface-container": "#eeeeee",
+            "on-primary-container": "#848484",
+            "surface-tint": "#5e5e5e",
+            "secondary-fixed-dim": "#c7c6c6",
+            "inverse-surface": "#2f3131",
+            "primary": "#000000",
+            "surface-container-low": "#f3f3f4",
+            "inverse-on-surface": "#f0f1f1",
+            "on-tertiary-fixed-variant": "#464747",
+            "on-tertiary-fixed": "#1a1c1c",
+            "on-secondary": "#ffffff",
+            "tertiary-container": "#1a1c1c",
+            "tertiary": "#000000",
+            "on-surface-variant": "#4c4546",
+            "error-container": "#ffdad6",
+            "primary-fixed-dim": "#c6c6c6",
+            "primary-fixed": "#e2e2e2",
+            "secondary-container": "#e3e2e2",
+            "on-secondary-container": "#646464",
+            "on-error-container": "#93000a",
+            "on-primary": "#ffffff",
+            "surface-bright": "#f9f9f9",
+            "on-background": "#1a1c1c",
+            "on-secondary-fixed": "#1b1c1c",
+            "tertiary-fixed": "#e3e2e2",
+            "surface-variant": "#e2e2e2",
+            "on-primary-fixed": "#1b1b1b",
+            "outline": "#7e7576"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "lg": "24px",
+            "gutter": "24px",
+            "sm": "8px",
+            "container-max": "1280px",
+            "xs": "4px",
+            "xl": "48px",
+            "unit": "4px",
+            "md": "16px",
+            "xxl": "80px"
+          },
+          "fontFamily": {
+            "headline-md": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "headline-xl-mobile": ["Geist"],
+            "label-sm-caps": ["Geist"],
+            "headline-lg": ["Geist"],
+            "headline-xl": ["Geist"],
+            "body-md": ["Geist"],
+            "body-lg": ["Geist"]
+          },
+          "fontSize": {
+            "headline-md": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+            "headline-xl-mobile": ["40px", {"lineHeight": "1.1", "fontWeight": "700"}],
+            "label-sm-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600"}],
+            "headline-lg": ["40px", {"lineHeight": "1.1", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+            "headline-xl": ["64px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+            "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+            "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased selection:bg-primary selection:text-on-primary">
+
+  <!-- Header Component -->
+  <%- include('../components/header') %>
+
+  <!-- Mobile Drawer Component -->
+  <%- include('../components/drawer') %>
+
+  <main class="pt-20">
+    <!-- Hero Section -->
+    <section class="min-h-[80vh] flex flex-col justify-center px-lg md:px-xl max-w-container-max mx-auto py-xxl border-b border-surface-container-high">
+      <div class="max-w-4xl">
+        <div class="inline-block px-sm py-xs bg-surface-container-high text-primary font-label-sm-caps text-label-sm-caps uppercase tracking-widest mb-lg rounded-DEFAULT">
+          WEB DEVELOPMENT • AI • DIGITAL PRODUCTS
+        </div>
+        <h1 class="font-headline-xl-mobile text-headline-xl-mobile md:font-headline-xl md:text-headline-xl text-primary mb-xl tracking-tight leading-none">
+          I build websites that move businesses forward.
+        </h1>
+        <a class="inline-flex items-center justify-center gap-sm bg-primary text-on-primary font-body-lg text-body-lg px-xl py-md hover:bg-secondary transition-colors group cursor-pointer" href="#contact">
+          Start a Project 
+          <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Services Grid Section -->
+    <section class="px-lg md:px-xl max-w-container-max mx-auto py-xxl border-b border-surface-container-high" id="services">
+      <div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-lg">
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">What I Build</h2>
+        <p class="font-body-md text-body-md text-secondary max-w-md">Engineered for performance, designed for conversion. Specializing in high-end digital solutions.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-outline-variant">
+        <% services.forEach(service => { %>
+          <div onclick="openServiceModal('<%= service.id %>')" class="p-xl border-r border-b border-outline-variant hover:bg-surface transition-colors cursor-pointer group flex flex-col justify-between min-h-[220px]">
+            <div>
+              <span class="font-label-sm-caps text-label-sm-caps text-secondary block mb-md"><%= service.id %></span>
+              <h3 class="font-headline-md text-headline-md text-primary mb-sm font-bold flex items-center justify-between group-hover:underline">
+                <%= service.name %>
+                <span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity text-lg">arrow_outward</span>
+              </h3>
+              <p class="font-body-md text-body-md text-secondary"><%= service.description %></p>
+            </div>
+            <div class="mt-md font-label-sm-caps text-[10px] text-primary underline tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+              VIEW DETAILS &rarr;
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+
+    <!-- Portfolio Component -->
+    <%- include('../components/portfolio') %>
+
+    <!-- Pricing Component -->
+    <%- include('../components/pricing') %>
+
+    <!-- FAQ Component -->
+    <%- include('../components/faq') %>
+
+    <!-- Project Inquiry Form Component -->
+    <%- include('../components/inquiryForm') %>
+  </main>
+
+  <!-- Footer Component -->
+  <%- include('../components/footer') %>
+
+  <!-- Service Detail Modal Overlay -->
+  <%- include('../components/serviceModal') %>
+
+  <!-- Interactive Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuToggle = document.getElementById('menu-toggle');
+      const menuClose = document.getElementById('menu-close');
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      const drawerLinks = document.querySelectorAll('.drawer-link');
+
+      function openDrawer() {
+        mobileDrawer.classList.remove('hidden');
+        setTimeout(() => {
+          mobileDrawer.classList.remove('translate-x-full');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeDrawer() {
+        mobileDrawer.classList.add('translate-x-full');
+        setTimeout(() => {
+          mobileDrawer.classList.add('hidden');
+        }, 300);
+        document.body.style.overflow = '';
+      }
+
+      menuToggle.addEventListener('click', openDrawer);
+      menuClose.addEventListener('click', closeDrawer);
+      
+      drawerLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          closeDrawer();
+          
+          // Smooth scroll logic if clicking section links
+          const href = link.getAttribute('href');
+          if (href.startsWith('/#') || href.startsWith('#')) {
+            e.preventDefault();
+            const id = href.substring(href.indexOf('#') + 1);
+            const targetEl = document.getElementById(id);
+            if (targetEl) {
+              // Wait for drawer close animation before scrolling
+              setTimeout(() => {
+                targetEl.scrollIntoView({ behavior: 'smooth' });
+                window.location.hash = '#' + id;
+              }, 300);
+            }
+          }
+        });
+      });
+      // Keyboard shortcut to open admin dashboard: Ctrl + 4
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === '4') {
+          e.preventDefault();
+          window.location.href = '/admin';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

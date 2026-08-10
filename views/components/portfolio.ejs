@@ -1,0 +1,48 @@
+<section class="px-lg md:px-xl max-w-container-max mx-auto py-xxl border-b border-surface-container-high" id="work">
+  <div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-lg">
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Selected Work</h2>
+    <p class="font-body-md text-body-md text-secondary max-w-md">Bespoke digital systems and websites crafted with a focus on details and execution.</p>
+  </div>
+
+  <% if (portfolio && portfolio.length > 0) { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-l border-outline-variant">
+      <% portfolio.forEach(project => { %>
+        <div class="border-r border-b border-outline-variant p-lg md:p-xl flex flex-col justify-between hover:bg-surface transition-colors duration-300">
+          <div>
+            <div class="relative overflow-hidden mb-lg aspect-[16/9] border border-outline-variant">
+              <img src="<%= project.image %>" alt="<%= project.title %>" class="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500">
+            </div>
+            <div class="flex items-center justify-between mb-sm">
+              <span class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-widest"><%= project.category %></span>
+              <div class="flex gap-xs">
+                <% project.technologies.forEach(tech => { %>
+                  <span class="text-[10px] px-sm py-[2px] bg-surface-container-high text-primary font-medium border border-outline-variant"><%= tech %></span>
+                <% }) %>
+              </div>
+            </div>
+            <h3 class="font-headline-md text-headline-md text-primary mb-md font-bold"><%= project.title %></h3>
+            <p class="font-body-md text-body-md text-secondary mb-xl"><%= project.description %></p>
+          </div>
+          <div class="flex gap-md pt-md border-t border-outline-variant">
+            <% if (project.liveUrl) { %>
+              <a href="<%= project.liveUrl %>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-xs text-body-md font-bold text-primary hover:opacity-80 transition-opacity">
+                Live Site <span class="material-symbols-outlined text-sm">open_in_new</span>
+              </a>
+            <% } %>
+            <% if (project.githubUrl) { %>
+              <a href="<%= project.githubUrl %>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-xs text-body-md text-secondary hover:text-primary transition-colors">
+                Source Code <span class="material-symbols-outlined text-sm">code</span>
+              </a>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <!-- Empty State -->
+    <div class="text-center py-xl border border-dashed border-outline-variant">
+      <span class="material-symbols-outlined text-secondary text-5xl mb-sm">folder_open</span>
+      <p class="font-body-lg text-body-lg text-secondary">No portfolio projects currently available.</p>
+    </div>
+  <% } %>
+</section>
