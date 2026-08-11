@@ -11,18 +11,51 @@ router.get('/login', (req, res) => {
   res.render('pages/login', { error: null });
 });
 
-// POST /admin/login - Authenticate admin
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const adminUser = process.env.ADMIN_USER || 'admin';
-  const adminPass = process.env.ADMIN_PASS || 'admin123';
+// POST /admin/login - Authenticate admin with Firebase ID Token
+router.post('/login', async (req, res) => {
+  const { idToken } = req.body;
+  const apiKey = process.env.FIREBASE_API_KEY;
+  const allowedEmailsStr = process.env.ALLOWED_ADMIN_EMAILS || 'arveharshil@gmail.com,harshil1536dcmy@gmail.com';
+  const allowedEmails = allowedEmailsStr.split(',').map(e => e.trim().toLowerCase());
 
-  if (username === adminUser && password === adminPass) {
-    req.session.isAdmin = true;
-    return res.redirect('/admin');
+  if (!idToken) {
+    return res.status(400).json({ success: false, message: 'ID Token is required.' });
   }
 
-  res.render('pages/login', { error: 'Invalid username or password.' });
+  try {
+    // Call Firebase REST endpoint to verify the client's ID Token
+    const verifyUrl = `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`;
+    const response = await fetch(verifyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ idToken })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.users || data.users.length === 0) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired authentication session.' });
+    }
+
+    const firebaseUser = data.users[0];
+    const email = firebaseUser.email ? firebaseUser.email.toLowerCase() : '';
+
+    if (allowedEmails.includes(email)) {
+      req.session.isAdmin = true;
+      req.session.adminEmail = email;
+      return res.json({ success: true });
+    }
+
+    return res.status(403).json({
+      success: false,
+      message: `Access denied: Only authorized administrators are permitted.`
+    });
+  } catch (error) {
+    console.error('Firebase token verification error:', error);
+    return res.status(500).json({ success: false, message: 'Internal authentication server error.' });
+  }
 });
 
 // GET /admin/logout - Logout admin

@@ -1,8 +1,7 @@
 # Node modules
 node_modules/
 
-# Local env files (MUST be ignored to protect secrets)
-.env
+# Local env files
 .env.local
 .env.production
 

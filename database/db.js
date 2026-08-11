@@ -44,68 +44,6 @@ async function initDb() {
     await db.exec("ALTER TABLE inquiries ADD COLUMN adminNotes TEXT");
     console.log("Database Migration: Added 'adminNotes' column to inquiries table.");
   }
-
-  // Check if we already have inquiries. If not, seed a few records for illustration.
-  const count = await db.get('SELECT COUNT(*) as count FROM inquiries');
-  if (count.count === 0) {
-    const now = new Date().toISOString();
-    
-    // Seed 1: New inquiry
-    await db.run(`
-      INSERT INTO inquiries (fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      'John Doe',
-      'john@example.com',
-      '+1234567890',
-      'Acme Corp',
-      'Web Application',
-      'https://acme.com',
-      '$3,500 - $5,000',
-      '1–2 months',
-      'We need a secure client portal web application to let our partners upload monthly PDF reports, view dashboards, and message our support staff.',
-      'NEW',
-      now,
-      now
-    ]);
-
-    // Seed 2: Contacted inquiry
-    await db.run(`
-      INSERT INTO inquiries (fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      'Jane Smith',
-      'jane@designco.com',
-      '+447911123456',
-      'DesignCo',
-      'Website Redesign',
-      'https://designco.com',
-      '$1,000 - $2,000',
-      'ASAP',
-      'Our current business site is slow and does not render well on mobile. We need a modern, minimalist design that loads in under 1 second.',
-      'CONTACTED',
-      now,
-      now
-    ]);
-
-    // Seed 3: In Progress inquiry
-    await db.run(`
-      INSERT INTO inquiries (fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      'Carlos Miller',
-      'carlos@millerstore.com',
-      '+34600123456',
-      'Miller Store',
-      'E-commerce',
-      '',
-      '$2,000 - $3,500',
-      '2–4 weeks',
-      'We want to start selling curated leather bags online. Need clean, high-performance checkout with Stripe integration and inventory management.',
-      'IN PROGRESS',
-      now,
-      now
-    ]);
   }
 }
 

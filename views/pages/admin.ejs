@@ -187,10 +187,23 @@
           </tbody>
         </table>
       <% } else { %>
-        <!-- Empty State -->
-        <div class="text-center py-xxl bg-surface-container-lowest">
-          <span class="material-symbols-outlined text-secondary text-5xl mb-sm">search_off</span>
-          <p class="font-body-lg text-body-lg text-secondary">No inquiries found matching current filters.</p>
+        <!-- Upgraded Minimalist Empty State -->
+        <div class="text-center py-20 border-t border-outline-variant bg-surface-container-lowest flex flex-col items-center justify-center p-lg">
+          <div class="w-12 h-12 flex items-center justify-center rounded-full border border-outline-variant mb-md bg-surface">
+            <span class="material-symbols-outlined text-secondary text-2xl">inbox</span>
+          </div>
+          <h3 class="font-headline-md text-headline-md font-bold text-primary mb-xs tracking-tight">No project inquiries yet</h3>
+          <p class="font-body-md text-body-md text-secondary max-w-sm mb-lg">
+            Client project requests submitted through your website contact form will automatically appear here in real-time.
+          </p>
+          <div class="flex gap-md">
+            <a href="/" target="_blank" class="inline-flex items-center gap-xs px-md py-sm bg-primary text-on-primary font-body-md text-body-md hover:bg-secondary transition-all">
+              Go to Landing Page <span class="material-symbols-outlined text-sm">open_in_new</span>
+            </a>
+            <button onclick="window.location.reload()" class="inline-flex items-center gap-xs px-md py-sm border border-outline-variant text-secondary hover:text-primary hover:border-primary font-body-md text-body-md transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-sm">refresh</span> Refresh List
+            </button>
+          </div>
         </div>
       <% } %>
     </div>

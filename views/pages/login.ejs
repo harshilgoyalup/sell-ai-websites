@@ -23,44 +23,107 @@
 
   <!-- Main Login Content -->
   <main class="flex-1 flex flex-col justify-center px-lg md:px-xl max-w-container-max mx-auto py-xxl w-full max-w-md">
-    <div class="border border-outline-variant p-lg md:p-xl bg-surface-container-lowest">
+    <div class="border border-outline-variant p-lg md:p-xl bg-surface-container-lowest text-center">
       <div class="mb-lg">
         <span class="font-label-sm-caps text-label-sm-caps text-secondary block mb-xs uppercase tracking-widest">SECURE ACCESS</span>
-        <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">Admin Dashboard</h1>
+        <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">Admin Console</h1>
       </div>
 
-      <% if (error) { %>
-        <div class="mb-lg p-md border border-error text-error text-body-md bg-error-container/20 flex items-center gap-xs">
-          <span class="material-symbols-outlined text-base">error</span>
-          <span><%= error %></span>
-        </div>
-      <% } %>
+      <!-- Error Message Container (Hidden by default) -->
+      <div id="error-message" class="hidden mb-lg p-md border border-error text-error text-body-md bg-error-container/20 flex items-center gap-xs text-left">
+        <span class="material-symbols-outlined text-base">error</span>
+        <span>Google authentication failed.</span>
+      </div>
 
-      <form action="/admin/login" method="POST" class="space-y-md">
-        <div class="flex flex-col gap-xs">
-          <label for="username" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Username</label>
-          <input type="text" id="username" name="username" required placeholder="admin"
-            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
-        </div>
-
-        <div class="flex flex-col gap-xs">
-          <label for="password" class="font-label-sm-caps text-label-sm-caps text-secondary uppercase tracking-wider">Password</label>
-          <input type="password" id="password" name="password" required placeholder="••••••••"
-            class="w-full bg-surface-container-lowest border border-outline-variant p-md focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT text-body-md text-primary">
-        </div>
-
-        <div class="pt-sm">
-          <button type="submit" class="w-full inline-flex items-center justify-center gap-sm bg-primary text-on-primary font-body-lg text-body-lg py-md hover:bg-secondary transition-colors cursor-pointer">
-            Access Dashboard
-            <span class="material-symbols-outlined">login</span>
-          </button>
-        </div>
-      </form>
+      <!-- Login Button -->
+      <div class="py-md">
+        <p class="font-body-md text-body-md text-secondary mb-lg">
+          Access is restricted to authorized administrators. Sign in with your Google Workspace or Gmail account to verify identity.
+        </p>
+        <button id="google-login-btn" onclick="loginWithGoogle()" class="w-full inline-flex items-center justify-center gap-sm border border-outline-variant hover:border-primary text-primary hover:bg-surface font-body-lg text-body-lg py-md transition-all cursor-pointer group">
+          <svg class="w-5 h-5 group-hover:scale-105 transition-transform" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+            <g transform="matrix(1, 0, 0, 1, 0, 0)">
+              <path d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.56h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48c0,-0.61 -0.05,-1.2 -0.16,-1.88Z" fill="#4285F4" />
+              <path d="M12,20.6c2.43,0 4.47,-0.8 5.96,-2.18l-3.3,-2.56c-0.9,0.6 -2.07,0.98 -3.3,0.98c-2.34,0 -4.33,-1.58 -5.04,-3.71H2.9v2.64C4.38,18.7 7.97,20.6 12,20.6Z" fill="#34A853" />
+              <path d="M6.96,13.13c-0.18,-0.54 -0.28,-1.11 -0.28,-1.7c0,-0.59 0.1,-1.16 0.28,-1.7V7.09H2.9C2.3,8.27 1.96,9.6 1.96,11c0,1.4 0.34,2.73 0.94,3.91l3.1,-2.64c0,-0.43 0,-0.87 0,-1.14Z" fill="#FBBC05" />
+              <path d="M12,5.2c1.32,0 2.5,0.45 3.44,1.35l2.58,-2.58C16.46,2.44 14.43,1.4 12,1.4C7.97,1.4 4.38,3.3 2.9,6.26l3.16,2.64c0.71,-2.13 2.7,-3.7 5.04,-3.7z" fill="#EA4335" />
+            </g>
+          </svg>
+          <span id="btn-text">Sign In with Google</span>
+        </button>
+      </div>
     </div>
   </main>
 
   <!-- Footer Component -->
   <%- include('../components/footer') %>
 
+  <!-- Firebase Auth CDN Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // User's Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCD2Ftbo9PWPtXZjFpA4FufDNkV9YuijhY",
+      authDomain: "main-important-database.firebaseapp.com",
+      projectId: "main-important-database",
+      storageBucket: "main-important-database.firebasestorage.app",
+      messagingSenderId: "538810488975",
+      appId: "1:538810488975:web:d128eff3c9b9ed8f75b8fa",
+      measurementId: "G-XW1H7767TX"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    window.loginWithGoogle = async function() {
+      const errorDiv = document.getElementById('error-message');
+      const btnText = document.getElementById('btn-text');
+      const loginBtn = document.getElementById('google-login-btn');
+      
+      errorDiv.classList.add('hidden');
+      btnText.textContent = 'Signing in...';
+      loginBtn.disabled = true;
+      loginBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const idToken = await result.user.getIdToken();
+
+        // Send token to server for session validation
+        const response = await fetch('/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ idToken })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          window.location.href = '/admin';
+        } else {
+          errorDiv.querySelector('span:last-child').textContent = data.message || 'Access denied: Unauthorized email account.';
+          errorDiv.classList.remove('hidden');
+          resetBtn();
+        }
+      } catch (error) {
+        console.error('Google sign in error:', error);
+        errorDiv.querySelector('span:last-child').textContent = error.message || 'Google authentication failed.';
+        errorDiv.classList.remove('hidden');
+        resetBtn();
+      }
+
+      function resetBtn() {
+        btnText.textContent = 'Sign In with Google';
+        loginBtn.disabled = false;
+        loginBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+      }
+    };
+  </script>
 </body>
 </html>
