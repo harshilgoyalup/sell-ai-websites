@@ -5,6 +5,7 @@ const { validateInquiry } = require('../lib/validation');
 const { submitInquiryLimiter } = require('../lib/limiter');
 const { authenticateAdmin } = require('../lib/auth');
 const { sendInquiryNotification } = require('../lib/email');
+const { sendDiscordNotification } = require('../lib/discord');
 
 // POST /api/inquiries - Submit an inquiry
 router.post('/inquiries', submitInquiryLimiter, async (req, res) => {
@@ -59,6 +60,12 @@ router.post('/inquiries', submitInquiryLimiter, async (req, res) => {
       id: result.lastID,
       ...sanitized
     }).catch(err => console.error('Background email dispatch failed:', err));
+
+    // Dispatch Discord Webhook notification in background
+    sendDiscordNotification({
+      id: result.lastID,
+      ...sanitized
+    }).catch(err => console.error('Background Discord webhook dispatch failed:', err));
 
     return res.status(201).json({
       success: true,
