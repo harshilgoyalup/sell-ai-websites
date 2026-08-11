@@ -5,11 +5,13 @@ node_modules/
 .env.local
 .env.production
 
-# SQLite databases
+# SQLite databases and JSON databases
 *.sqlite
 *.db
 database/database.sqlite
 database/*.sqlite
+inquiries.json
+database/inquiries.json
 
 # Logs
 logs
