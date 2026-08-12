@@ -1,7 +1,8 @@
 # Node modules
 node_modules/
 
-# Local env files
+# Local env files (NEVER commit — contains passwords and API keys)
+.env
 .env.local
 .env.production
 
