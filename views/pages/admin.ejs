@@ -224,10 +224,10 @@
     <!-- Filter Tabs + Actions Row -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <div style="display:flex;gap:4px;flex-wrap:wrap;">
-        <% ['All', 'New', 'Contacted', 'In Discussion', 'In Progress', 'Completed', 'Rejected'].forEach(filter => { %>
+        <% ['All', 'New', 'Contacted', 'In Discussion', 'In Progress', 'Completed', 'Rejected', 'Subscribers'].forEach(filter => { %>
           <a href="/admin?filter=<%= filter %>&search=<%= searchQuery %>" 
             class="filter-tab <%= activeFilter === filter ? 'active' : '' %>">
-            <%= filter %>
+            <%= filter %> <%= filter === 'Subscribers' ? `(${subscribersCount})` : '' %>
           </a>
         <% }) %>
       </div>
@@ -238,7 +238,40 @@
 
     <!-- Leads Table -->
     <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--bg);">
-      <% if (inquiries && inquiries.length > 0) { %>
+      <% if (activeFilter === 'Subscribers') { %>
+        <% if (subscribers && subscribers.length > 0) { %>
+          <table class="leads-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Subscriber Email</th>
+                <th>Subscribed Date</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% subscribers.forEach(sub => { %>
+                <tr>
+                  <td style="color:var(--text-faint);font-weight:600;"><%= sub.id %></td>
+                  <td style="font-weight:600;color:var(--text);"><a href="mailto:<%= sub.email %>" style="color:var(--text);text-decoration:underline;"><%= sub.email %></a></td>
+                  <td style="color:var(--text-muted);"><%= new Date(sub.subscribedAt).toLocaleDateString(undefined, {weekday:'short',month:'short',day:'numeric',year:'numeric'}) %></td>
+                  <td style="text-align:right;">
+                    <a href="mailto:<%= sub.email %>?subject=Welcome%20from%20Harshil%20Goyal" class="btn-ghost" style="padding:4px 10px;font-size:12px;">
+                      <span class="ms" style="font-size:15px;">mail</span> Email
+                    </a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <div style="padding:60px 20px;text-align:center;color:var(--text-muted);">
+            <span class="ms" style="font-size:32px;color:var(--text-faint);margin-bottom:8px;">mark_email_read</span>
+            <p style="font-size:14px;font-weight:600;">No subscribers yet</p>
+            <p style="font-size:12px;color:var(--text-faint);margin-top:4px;">Visitors who subscribe on your website will appear here.</p>
+          </div>
+        <% } %>
+      <% } else if (inquiries && inquiries.length > 0) { %>
         <table class="leads-table">
           <thead>
             <tr>

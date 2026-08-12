@@ -1,0 +1,97 @@
+<!-- Floating Email Subscription Widget -->
+<div id="sub-widget-container" class="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+  
+  <!-- Popover Box (Hidden by default) -->
+  <div id="sub-popover" class="hidden mb-3 w-80 bg-surface-container-lowest border border-outline-variant p-md shadow-2xl rounded-DEFAULT transition-all transform origin-bottom-right">
+    <div class="flex items-center justify-between border-b border-outline-variant pb-xs mb-sm">
+      <div class="flex items-center gap-xs">
+        <span class="material-symbols-outlined text-primary text-base">mark_email_unread</span>
+        <span class="font-label-sm-caps text-label-sm-caps font-bold text-primary tracking-wider uppercase">Subscribe</span>
+      </div>
+      <button onclick="toggleSubscribeWidget()" class="text-secondary hover:text-primary p-xs cursor-pointer">
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
+    </div>
+
+    <p class="font-body-md text-xs text-secondary mb-md leading-relaxed">
+      Subscribe to receive web design insights, updates, and exclusive agency offers from <strong><%= siteConfig.name %></strong>.
+    </p>
+
+    <form id="sub-widget-form" onsubmit="handleWidgetSubscribe(event)" class="flex flex-col gap-xs">
+      <div class="relative">
+        <input type="email" id="sub-widget-email" required placeholder="name@example.com" 
+          class="w-full bg-surface-container-lowest border border-outline-variant px-md py-sm text-xs text-primary focus:border-primary focus:ring-0 focus:outline-none rounded-DEFAULT pr-8">
+        <span class="material-symbols-outlined text-secondary text-base absolute right-2.5 top-2.5 pointer-events-none">mail</span>
+      </div>
+      <button type="submit" id="sub-widget-btn" class="w-full bg-primary text-on-primary font-body-md text-xs font-bold py-sm hover:opacity-85 transition-opacity cursor-pointer flex items-center justify-center gap-xs">
+        <span>Subscribe</span>
+        <span class="material-symbols-outlined text-sm">send</span>
+      </button>
+    </form>
+
+    <div id="sub-widget-msg" class="hidden mt-xs text-[11px] p-xs border text-center font-medium"></div>
+  </div>
+
+  <!-- Floating Toggle Button -->
+  <button id="sub-toggle-btn" onclick="toggleSubscribeWidget()" 
+    class="flex items-center gap-xs bg-primary text-on-primary px-md py-sm rounded-full shadow-lg border border-primary hover:bg-secondary transition-all cursor-pointer group"
+    title="Subscribe to updates">
+    <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">mail</span>
+    <span class="font-label-sm-caps text-xs font-bold uppercase tracking-wider hidden sm:inline">Newsletter</span>
+  </button>
+
+</div>
+
+<script>
+  function toggleSubscribeWidget() {
+    const popover = document.getElementById('sub-popover');
+    popover.classList.toggle('hidden');
+    if (!popover.classList.contains('hidden')) {
+      document.getElementById('sub-widget-email').focus();
+    }
+  }
+
+  async function handleWidgetSubscribe(e) {
+    e.preventDefault();
+    const emailInput = document.getElementById('sub-widget-email');
+    const btn = document.getElementById('sub-widget-btn');
+    const msg = document.getElementById('sub-widget-msg');
+
+    const email = emailInput.value.trim();
+    if (!email) return;
+
+    btn.disabled = true;
+    btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+
+      msg.classList.remove('hidden', 'border-error', 'text-error', 'bg-error-container/20', 'border-outline-variant', 'text-primary', 'bg-surface');
+
+      if (response.ok && data.success) {
+        msg.classList.add('border-outline-variant', 'text-primary', 'bg-surface');
+        msg.textContent = data.message;
+        emailInput.value = '';
+        setTimeout(() => {
+          toggleSubscribeWidget();
+        }, 3500);
+      } else {
+        msg.classList.add('border-error', 'text-error', 'bg-error-container/20');
+        msg.textContent = data.message || 'Subscription failed. Try again.';
+      }
+    } catch (err) {
+      console.error(err);
+      msg.classList.remove('hidden');
+      msg.classList.add('border-error', 'text-error', 'bg-error-container/20');
+      msg.textContent = 'Server error. Please try again.';
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+  }
+</script>

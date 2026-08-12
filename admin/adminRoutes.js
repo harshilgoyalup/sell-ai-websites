@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDb } = require('../database/db');
+const { getDb, getSubscribers } = require('../database/db');
 const { authenticateAdmin } = require('../lib/auth');
 
 // GET /admin/login - Show login page
@@ -111,10 +111,13 @@ router.get('/', authenticateAdmin, async (req, res) => {
 
     query += ' ORDER BY createdAt DESC';
     const inquiries = await db.all(query, params);
+    const subscribersList = getSubscribers();
 
     res.render('pages/admin', {
       stats: statsFormatted,
       inquiries,
+      subscribers: subscribersList,
+      subscribersCount: subscribersList.length,
       activeFilter,
       searchQuery
     });

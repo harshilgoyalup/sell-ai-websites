@@ -199,7 +199,45 @@ async function getDb() {
   };
 }
 
+const subscribersPath = process.env.VERCEL
+  ? path.join('/tmp', 'subscribers.json')
+  : path.join(__dirname, 'subscribers.json');
+
+function getSubscribers() {
+  try {
+    if (!fs.existsSync(subscribersPath)) return [];
+    const data = fs.readFileSync(subscribersPath, 'utf8');
+    return JSON.parse(data || '[]');
+  } catch (err) {
+    console.error('Error reading subscribers JSON:', err);
+    return [];
+  }
+}
+
+function addSubscriber(email) {
+  try {
+    const list = getSubscribers();
+    const existing = list.find(s => s.email.toLowerCase() === email.toLowerCase());
+    if (existing) {
+      return { success: true, alreadySubscribed: true, entry: existing };
+    }
+    const newEntry = {
+      id: list.length > 0 ? Math.max(...list.map(s => s.id)) + 1 : 1,
+      email: email.toLowerCase().trim(),
+      subscribedAt: new Date().toISOString()
+    };
+    list.push(newEntry);
+    fs.writeFileSync(subscribersPath, JSON.stringify(list, null, 2), 'utf8');
+    return { success: true, alreadySubscribed: false, entry: newEntry };
+  } catch (err) {
+    console.error('Error saving subscriber:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 module.exports = {
   getDb,
-  initDb
+  initDb,
+  getSubscribers,
+  addSubscriber
 };
