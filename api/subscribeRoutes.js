@@ -28,10 +28,12 @@ router.post('/subscribe', async (req, res) => {
       });
     }
 
-    // Trigger welcome email in background
-    sendSubscriptionWelcomeEmail(cleanEmail).catch(err => {
-      console.error('Background welcome email dispatch error:', err);
-    });
+    // Trigger welcome email (awaited for Vercel serverless compatibility)
+    try {
+      await sendSubscriptionWelcomeEmail(cleanEmail);
+    } catch (err) {
+      console.error('Welcome email dispatch error:', err);
+    }
 
     return res.status(200).json({
       success: true,

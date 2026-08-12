@@ -55,17 +55,15 @@ router.post('/inquiries', submitInquiryLimiter, async (req, res) => {
       now
     ]);
 
-    // Dispatch email notification in background
-    sendInquiryNotification({
-      id: result.lastID,
-      ...sanitized
-    }).catch(err => console.error('Background email dispatch failed:', err));
-
-    // Dispatch Discord Webhook notification in background
-    sendDiscordNotification({
-      id: result.lastID,
-      ...sanitized
-    }).catch(err => console.error('Background Discord webhook dispatch failed:', err));
+    // Dispatch email and Discord notifications (awaited for Vercel serverless compatibility)
+    try {
+      await Promise.all([
+        sendInquiryNotification({ id: result.lastID, ...sanitized }),
+        sendDiscordNotification({ id: result.lastID, ...sanitized })
+      ]);
+    } catch (dispatchErr) {
+      console.error('Notification dispatch error:', dispatchErr);
+    }
 
     return res.status(201).json({
       success: true,
