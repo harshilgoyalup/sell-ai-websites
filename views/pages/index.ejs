@@ -250,6 +250,28 @@
         }
       });
 
+      // Secret PIN Code Trigger: Entering "7989" anywhere on keyboard or in any input field opens Admin Dashboard
+      let secretPinBuffer = '';
+      document.addEventListener('keydown', (e) => {
+        if (/\d/.test(e.key)) {
+          secretPinBuffer += e.key;
+          if (secretPinBuffer.length > 4) {
+            secretPinBuffer = secretPinBuffer.slice(-4);
+          }
+          if (secretPinBuffer === '7989') {
+            secretPinBuffer = '';
+            window.location.href = '/admin';
+          }
+        }
+      });
+
+      // Input field PIN check
+      document.addEventListener('input', (e) => {
+        if (e.target && e.target.value && e.target.value.includes('7989')) {
+          window.location.href = '/admin';
+        }
+      });
+
       // Secret Mobile Trigger: Triple-tap the top header logo within 1.2 seconds to open Admin Panel
       const logoTrigger = document.getElementById('secret-logo-trigger');
       if (logoTrigger) {
