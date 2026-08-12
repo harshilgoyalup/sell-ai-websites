@@ -1,47 +1,87 @@
 const portfolioProjects = [
   {
-    id: "p1",
-    title: "Aether Portfolio",
-    description: "A premium minimalist portfolio site developed for a design agency, showcasing typography and layout design.",
-    category: "Web Design",
-    technologies: ["HTML5", "CSS3", "JavaScript", "Tailwind CSS"],
-    image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=600",
-    liveUrl: "https://aether.example.com",
-    githubUrl: "https://github.com/harshilgoyal/aether",
-    featured: true
+    number: "01",
+    id: "jeevansetu-ai",
+    title: "JEEVANSETU AI",
+    subtitle: "AI-powered flood response & emergency intelligence",
+    description: "An AI-powered platform designed to help communities respond to floods through risk analysis, emergency intelligence, mapping and actionable alerts.",
+    highlights: [
+      "AI flood-risk analysis",
+      "Emergency intelligence",
+      "Interactive maps",
+      "Weather and location data",
+      "Real-world disaster-response use case"
+    ],
+    technologies: ["AI", "Gemini", "Python", "Maps", "Open-Meteo"],
+    liveUrl: "https://ai-tsav-jeevansetu-ai.vercel.app/",
+    githubUrl: "https://github.com/harshilgoyalup/ai-tsav-JEEVANSETU-AI",
+    buttonText: "View Live →",
+    secondaryButtonText: "GitHub →",
+    featured: true,
+    layout: "featured-hero"
   },
   {
-    id: "p2",
-    title: "Omni Dashboard",
-    description: "An interactive and minimalist dashboard system integrating charts, user authentication, and data visualization.",
-    category: "Web Application",
-    technologies: ["Node.js", "Express", "SQLite", "Chart.js"],
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=600",
-    liveUrl: "https://omni.example.com",
-    githubUrl: "https://github.com/harshilgoyal/omni-dashboard",
-    featured: true
+    number: "02",
+    id: "achievehub-ai",
+    title: "AchieveHub AI",
+    subtitle: "AI-powered student achievement platform",
+    description: "A platform for managing, showcasing and understanding student achievements, competitions, certificates and academic accomplishments.",
+    highlights: [
+      "Achievement tracking",
+      "Student profiles",
+      "Certificates",
+      "Competition records",
+      "AI-powered insights"
+    ],
+    technologies: ["AI", "Web App", "React", "Database"],
+    liveUrl: "https://achievhub.vercel.app/",
+    githubUrl: null,
+    buttonText: "View Live →",
+    secondaryButtonText: null,
+    featured: true,
+    layout: "grid-item"
   },
   {
-    id: "p3",
-    title: "Vertex E-Commerce",
-    description: "A fast-loading storefront with product browsing, seamless shopping cart experience, and Stripe checkout integration.",
-    category: "E-Commerce",
-    technologies: ["HTML5", "CSS3", "Node.js", "Stripe API"],
-    image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=600",
-    liveUrl: "https://vertex.example.com",
-    githubUrl: "https://github.com/harshilgoyal/vertex-shop",
-    featured: true
+    number: "03",
+    id: "roast-my-resume",
+    title: "Roast My Resume",
+    subtitle: "An AI resume critic that tells you what is actually wrong",
+    description: "An AI-powered resume review experience that analyzes your resume and gives direct, useful and sometimes brutally honest feedback to help you improve it.",
+    highlights: [
+      "AI resume analysis",
+      "Resume scoring",
+      "Actionable feedback",
+      "Weak-point detection",
+      "Improvement suggestions"
+    ],
+    technologies: ["AI", "Resume AI", "Analysis", "Web App"],
+    liveUrl: "https://pluck.base44.app",
+    githubUrl: null,
+    buttonText: "Roast My Resume →",
+    secondaryButtonText: null,
+    featured: true,
+    layout: "grid-item"
   },
   {
-    id: "p4",
-    title: "Chronos Task Manager",
-    description: "A minimalist daily planner and tasks tracking tool built to optimize time management and daily schedules.",
-    category: "Web Application",
-    technologies: ["HTML5", "Tailwind CSS", "JavaScript", "Local Storage"],
-    image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=600",
-    liveUrl: "https://chronos.example.com",
-    githubUrl: "https://github.com/harshilgoyal/chronos",
-    featured: false
+    number: "04",
+    id: "harshil-portfolio",
+    title: "Harshil Goyal — Portfolio",
+    subtitle: "My personal developer portfolio",
+    description: "A personal portfolio showcasing my AI projects, development work, experiments, skills and the things I'm building.",
+    highlights: [
+      "Project showcase",
+      "Developer profile",
+      "AI & software projects",
+      "Skills and technologies",
+      "Contact and social links"
+    ],
+    technologies: ["Developer Profile", "AI Projects", "Showcase", "Web App"],
+    liveUrl: "https://harshil-portfolio1.vercel.app/",
+    githubUrl: null,
+    buttonText: "View Portfolio →",
+    secondaryButtonText: null,
+    featured: true,
+    layout: "wide-banner"
   }
 ];
 
