@@ -20,7 +20,34 @@ function readData() {
       return [];
     }
     const data = fs.readFileSync(dbPath, 'utf8');
-    return JSON.parse(data || '[]');
+    const parsed = JSON.parse(data || '[]');
+    let modified = false;
+
+    parsed.forEach((inquiry, idx) => {
+      if (!inquiry.trackingToken) {
+        inquiry.trackingToken = 'tr_' + (inquiry.id || (idx + 1)) + Math.random().toString(36).substring(2, 7);
+        modified = true;
+      }
+      if (!inquiry.milestones || !Array.isArray(inquiry.milestones)) {
+        const isDone = inquiry.status === 'COMPLETED';
+        const isProg = inquiry.status === 'IN PROGRESS';
+        const isDisc = inquiry.status === 'IN DISCUSSION';
+
+        inquiry.milestones = [
+          { id: 1, title: 'Inquiry Received & Under Review', status: 'completed' },
+          { id: 2, title: 'Discovery & Proposal Alignment', status: (isDisc || isProg || isDone) ? 'completed' : 'in_progress' },
+          { id: 3, title: 'UI/UX Design & Architecture', status: (isProg || isDone) ? 'completed' : (isDisc ? 'in_progress' : 'pending') },
+          { id: 4, title: 'Development & Feature Build', status: isDone ? 'completed' : (isProg ? 'in_progress' : 'pending') },
+          { id: 5, title: 'Testing, Review & Final Launch', status: isDone ? 'completed' : 'pending' }
+        ];
+        modified = true;
+      }
+    });
+
+    if (modified) {
+      writeData(parsed);
+    }
+    return parsed;
   } catch (error) {
     console.error('Error reading JSON DB:', error);
     return [];
@@ -129,8 +156,10 @@ async function getDb() {
         const [fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt] = params;
         const newId = data.length > 0 ? Math.max(...data.map(i => i.id)) + 1 : 1;
         
+        const newTrackingToken = 'tr_' + newId + Math.random().toString(36).substring(2, 7);
         const newInquiry = {
           id: newId,
+          trackingToken: newTrackingToken,
           fullName,
           email,
           whatsapp,
@@ -142,13 +171,20 @@ async function getDb() {
           description,
           status,
           adminNotes: '',
+          milestones: [
+            { id: 1, title: 'Inquiry Received & Under Review', status: 'completed' },
+            { id: 2, title: 'Discovery & Proposal Alignment', status: 'in_progress' },
+            { id: 3, title: 'UI/UX Design & Architecture', status: 'pending' },
+            { id: 4, title: 'Development & Feature Build', status: 'pending' },
+            { id: 5, title: 'Testing, Review & Final Launch', status: 'pending' }
+          ],
           createdAt,
           updatedAt
         };
 
         data.push(newInquiry);
         writeData(data);
-        return { lastID: newId };
+        return { lastID: newId, trackingToken: newTrackingToken };
       }
 
       // Query 2: UPDATE status
@@ -235,9 +271,39 @@ function addSubscriber(email) {
   }
 }
 
+function getInquiryByToken(token) {
+  try {
+    const list = readData();
+    const match = list.find(i => i.trackingToken === token);
+    return match || null;
+  } catch (err) {
+    console.error('Error fetching inquiry by token:', err);
+    return null;
+  }
+}
+
+function updateInquiryMilestones(id, milestones) {
+  try {
+    const list = readData();
+    const index = list.findIndex(i => i.id === parseInt(id));
+    if (index !== -1) {
+      list[index].milestones = milestones;
+      list[index].updatedAt = new Date().toISOString();
+      writeData(list);
+      return { success: true, inquiry: list[index] };
+    }
+    return { success: false, message: 'Inquiry not found.' };
+  } catch (err) {
+    console.error('Error updating inquiry milestones:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 module.exports = {
   getDb,
   initDb,
   getSubscribers,
-  addSubscriber
+  addSubscriber,
+  getInquiryByToken,
+  updateInquiryMilestones
 };

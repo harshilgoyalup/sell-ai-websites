@@ -199,6 +199,13 @@
               <span class="ms" style="font-size:16px;">language</span> View Website
             </a>
           <% } %>
+          <% const trackerUrl = `https://dev-harshil.vercel.app/track/${inquiry.trackingToken}`; %>
+          <button onclick="copyTrackerLink('<%= trackerUrl %>')" class="btn-ghost" style="font-size:12px;padding:7px 14px;background:#111;color:#fff;border-color:#111;" title="Copy Client Live Tracker Link">
+            <span class="ms" style="font-size:16px;">link</span> Copy Client Tracker Link
+          </button>
+          <a href="/track/<%= inquiry.trackingToken %>" target="_blank" class="btn-ghost" style="font-size:12px;padding:7px 14px;" title="Preview Live Tracker">
+            <span class="ms" style="font-size:16px;">open_in_new</span> Preview Tracker
+          </a>
         </div>
       </div>
     </div>
@@ -283,6 +290,41 @@
       </div>
     </div>
 
+    <!-- Client Live Progress Tracker & Milestones Manager -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);display:block;">Client Progress Tracker & Milestones</span>
+          <span style="font-size:12px;color:var(--text-muted);">Updates reflect live on client tracking page</span>
+        </div>
+        <span id="milestone-indicator" class="ms" style="font-size:18px;color:var(--text-faint);display:none;">check_circle</span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:12px;" id="milestones-list">
+          <% if (inquiry.milestones && inquiry.milestones.length > 0) { %>
+            <% inquiry.milestones.forEach((m) => { %>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);">
+                <div style="font-size:13.5px;font-weight:600;color:var(--text);"><%= m.title %></div>
+                <select class="milestone-status-select status-select" data-id="<%= m.id %>" data-title="<%= m.title %>" style="font-size:11px;padding:4px 8px;">
+                  <option value="pending" <%= m.status === 'pending' ? 'selected' : '' %>>Upcoming</option>
+                  <option value="in_progress" <%= m.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+                  <option value="completed" <%= m.status === 'completed' ? 'selected' : '' %>>Done</option>
+                </select>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+        <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+          <button onclick="copyTrackerLink('<%= trackerUrl %>')" class="btn-ghost" style="font-size:12px;">
+            <span class="ms" style="font-size:15px;">content_copy</span> Copy Tracking Link
+          </button>
+          <button onclick="saveMilestones(<%= inquiry.id %>)" class="btn-primary" style="font-size:12px;padding:8px 16px;">
+            <span class="ms" style="font-size:15px;">save</span> Save Milestones
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Admin Notes -->
     <div class="card" style="margin-bottom:20px;">
       <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
@@ -316,6 +358,51 @@
     toast.style.background = isError ? '#c00' : '#111';
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3200);
+  }
+
+  function copyTrackerLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Client tracking link copied!');
+    }).catch(err => {
+      showToast('Failed to copy link', true);
+    });
+  }
+
+  async function saveMilestones(id) {
+    const selects = document.querySelectorAll('.milestone-status-select');
+    const milestones = Array.from(selects).map(sel => ({
+      id: parseInt(sel.dataset.id),
+      title: sel.dataset.title,
+      status: sel.value
+    }));
+
+    const ind = document.getElementById('milestone-indicator');
+    ind.style.display = 'inline-block';
+    ind.textContent = 'progress_activity';
+    ind.style.color = 'var(--text-faint)';
+
+    try {
+      const response = await fetch(`/api/inquiries/${id}/milestones`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ milestones })
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        ind.textContent = 'check_circle';
+        ind.style.color = '#16a34a';
+        showToast('Milestones saved! Client view updated.');
+        setTimeout(() => { ind.style.display = 'none'; }, 2500);
+      } else {
+        ind.textContent = 'error';
+        ind.style.color = '#c00';
+        showToast(result.message || 'Failed to save milestones.', true);
+      }
+    } catch (e) {
+      ind.textContent = 'error';
+      ind.style.color = '#c00';
+      showToast('Server error saving milestones.', true);
+    }
   }
 
   async function updateStatus(id, newStatus) {

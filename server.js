@@ -58,8 +58,10 @@ app.get('/', (req, res) => {
 // Import and Register Routes
 const inquiryApi = require('./api/inquiryRoutes');
 const subscribeApi = require('./api/subscribeRoutes');
+const trackerRoutes = require('./api/trackerRoutes');
 const adminRoutes = require('./admin/adminRoutes');
 
+app.use('/', trackerRoutes);
 app.use('/api', inquiryApi);
 app.use('/api', subscribeApi);
 app.use('/admin', adminRoutes);

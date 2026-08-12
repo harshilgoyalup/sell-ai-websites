@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Project Progress Tracker — <%= inquiry.fullName %> | <%= siteConfig.name %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { font-family: 'Geist', sans-serif; }
+    .ms { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; font-size: 20px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; }
+
+    :root {
+      --border: #e2e2e2;
+      --bg: #ffffff;
+      --bg-subtle: #f8f8f8;
+      --text: #111111;
+      --text-muted: #666666;
+      --text-faint: #999999;
+    }
+
+    body { background: var(--bg-subtle); color: var(--text); margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+
+    .topbar { height: 64px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 30; }
+
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+    .card-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-subtle); }
+    .card-body { padding: 24px; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border: 1px solid; border-radius: 4px; }
+    .badge-NEW { background: #f5f5f5; color: #333; border-color: #d4d4d4; }
+    .badge-CONTACTED { background: #fafafa; color: #555; border-color: #ddd; }
+    .badge-IN-DISCUSSION { background: #f0f0f0; color: #444; border-color: #ccc; }
+    .badge-IN-PROGRESS { background: #1a1a1a; color: #fff; border-color: #111; }
+    .badge-COMPLETED { background: #111; color: #fff; border-color: #000; }
+    .badge-REJECTED { background: #fff0f0; color: #c00; border-color: #fcc; }
+
+    .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 10px 20px; background: var(--text); color: #fff; border: 1px solid var(--text); border-radius: 6px; cursor: pointer; text-decoration: none; transition: opacity 0.15s; }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 9px 18px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; text-decoration: none; transition: all 0.12s; }
+    .btn-ghost:hover { border-color: var(--text); background: var(--bg-subtle); }
+
+    /* Timeline */
+    .timeline-item { display: flex; gap: 16px; position: relative; padding-bottom: 24px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: var(--border); }
+    .timeline-icon { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; background: var(--bg); z-index: 10; }
+    .timeline-icon.completed { background: #111; color: #fff; border-color: #111; }
+    .timeline-icon.in_progress { background: #fff; color: #111; border-color: #111; box-shadow: 0 0 0 3px rgba(0,0,0,0.1); }
+    .timeline-icon.pending { background: var(--bg-subtle); color: var(--text-faint); border-color: var(--border); }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="ms" style="font-size:22px;">terminal</span>
+      <div>
+        <div style="font-size:14px;font-weight:700;letter-spacing:-0.02em;"><%= siteConfig.name %></div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);">Client Progress Portal</div>
+      </div>
+    </div>
+    <div>
+      <a href="/" target="_blank" class="btn-ghost" style="font-size:12px;padding:6px 12px;">
+        <span class="ms" style="font-size:16px;">open_in_new</span> Main Website
+      </a>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <main style="max-width:840px;width:100%;margin:0 auto;padding:40px 20px;flex:1;">
+    
+    <!-- Hero Header -->
+    <div class="card">
+      <div class="card-body">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px;">LIVE PROJECT TRACKER</div>
+            <h1 style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:var(--text);margin:0 0 8px;"><%= inquiry.projectType %></h1>
+            <div style="font-size:14px;color:var(--text-muted);">
+              Prepared for <strong><%= inquiry.fullName %></strong> <% if (inquiry.company) { %>(<%= inquiry.company %>)<% } %>
+            </div>
+          </div>
+
+          <div>
+            <% 
+              const statusClass = 'badge-' + (inquiry.status ? inquiry.status.replace(/\s+/g, '-') : 'NEW');
+            %>
+            <span class="badge <%= statusClass %>">
+              <span class="ms" style="font-size:14px;">fiber_manual_record</span> <%= inquiry.status %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <%
+          const totalM = inquiry.milestones ? inquiry.milestones.length : 5;
+          const doneM = inquiry.milestones ? inquiry.milestones.filter(m => m.status === 'completed').length : 1;
+          const progPct = Math.round((doneM / totalM) * 100);
+        %>
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:600;">
+            <span style="color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-size:10px;">Overall Completion</span>
+            <span style="color:var(--text);font-weight:700;"><%= progPct %>% Complete</span>
+          </div>
+          <div style="height:8px;background:var(--bg-subtle);border:1px solid var(--border);border-radius:99px;overflow:hidden;">
+            <div style="height:100%;background:#111;width:<%= progPct %>%;transition:width 0.5s ease;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Milestones Timeline Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);display:block;">Project Milestones</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text);">Live Phase Breakdown</span>
+        </div>
+        <span style="font-size:12px;color:var(--text-muted);"><%= doneM %> of <%= totalM %> Completed</span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;">
+          <% if (inquiry.milestones && inquiry.milestones.length > 0) { %>
+            <% inquiry.milestones.forEach((m, idx) => { %>
+              <div class="timeline-item">
+                <div class="timeline-icon <%= m.status %>">
+                  <% if (m.status === 'completed') { %>
+                    <span class="ms" style="font-size:18px;">check</span>
+                  <% } else if (m.status === 'in_progress') { %>
+                    <span class="ms" style="font-size:16px;color:#111;">pending</span>
+                  <% } else { %>
+                    <%= idx + 1 %>
+                  <% } %>
+                </div>
+                <div style="flex:1;padding-top:4px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                    <div style="font-size:14.5px;font-weight:700;color:<%= m.status === 'pending' ? 'var(--text-muted)' : 'var(--text)' %>;">
+                      <%= m.title %>
+                    </div>
+                    <div>
+                      <% if (m.status === 'completed') { %>
+                        <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;padding:2px 8px;border-radius:3px;">Done</span>
+                      <% } else if (m.status === 'in_progress') { %>
+                        <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#111;background:#f0f0f0;border:1px solid #ccc;padding:2px 8px;border-radius:3px;">In Progress</span>
+                      <% } else { %>
+                        <span style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);background:var(--bg-subtle);border:1px solid var(--border);padding:2px 8px;border-radius:3px;">Upcoming</span>
+                      <% } %>
+                    </div>
+                  </div>
+                  <div style="font-size:12.5px;color:var(--text-muted);margin-top:3px;">
+                    <% if (m.status === 'completed') { %>
+                      Phase successfully finalized and verified.
+                    <% } else if (m.status === 'in_progress') { %>
+                      Currently active and underway.
+                    <% } else { %>
+                      Scheduled following previous phase completion.
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Specifications Summary -->
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);">Project Overview</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;" class="grid-spec">
+          <div>
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);display:block;margin-bottom:4px;">Project Type</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text);"><%= inquiry.projectType %></span>
+          </div>
+          <div>
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);display:block;margin-bottom:4px;">Estimated Timeline</span>
+            <span style="font-size:14px;color:var(--text);"><%= inquiry.timeline %></span>
+          </div>
+          <div>
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);display:block;margin-bottom:4px;">Requested On</span>
+            <span style="font-size:14px;color:var(--text);"><%= new Date(inquiry.createdAt).toLocaleDateString(undefined, {month:'short',day:'numeric',year:'numeric'}) %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct Support & Questions -->
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:32px 24px;">
+        <h3 style="font-size:16px;font-weight:700;color:var(--text);margin:0 0 8px;">Have questions about your project?</h3>
+        <p style="font-size:13.5px;color:var(--text-muted);max-width:440px;margin:0 auto 20px;line-height:1.6;">
+          Reach out directly to Harshil Goyal anytime for updates, design feedback, or timeline adjustments.
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <% 
+            const waText = encodeURIComponent(`Hi Harshil, I'm checking my project tracking page for "${inquiry.projectType}".`);
+            const waUrl = `https://wa.me/918968929568?text=${waText}`;
+          %>
+          <a href="<%= waUrl %>" target="_blank" rel="noopener noreferrer" class="btn-primary">
+            <span class="ms" style="font-size:17px;">chat</span> WhatsApp Harshil
+          </a>
+          <a href="mailto:<%= siteConfig.email %>?subject=Project%20Update%20—%20<%= encodeURIComponent(inquiry.projectType) %>" class="btn-ghost">
+            <span class="ms" style="font-size:17px;">mail</span> Email Harshil
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer style="border-top:1px solid var(--border);background:var(--bg);padding:20px;text-align:center;font-size:12px;color:var(--text-faint);">
+    <%= siteConfig.name %> Web Development Services &copy; <%= new Date().getFullYear() %> · Live Progress Portal
+  </footer>
+
+  <script>
+    if (window.innerWidth <= 600) {
+      document.querySelectorAll('.grid-spec').forEach(el => el.style.gridTemplateColumns = '1fr');
+    }
+  </script>
+</body>
+</html>

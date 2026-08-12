@@ -321,7 +321,10 @@
                 </td>
                 <td onclick="event.stopPropagation();" style="text-align:right;">
                   <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;">
-                    <a href="/admin/inquiries/<%= inquiry.id %>" class="btn-ghost" style="padding:5px 8px;" title="View">
+                    <a href="/track/<%= inquiry.trackingToken %>" target="_blank" class="btn-ghost" style="padding:5px 8px;" title="View Live Client Tracker">
+                      <span class="ms" style="font-size:16px;">link</span>
+                    </a>
+                    <a href="/admin/inquiries/<%= inquiry.id %>" class="btn-ghost" style="padding:5px 8px;" title="View Details">
                       <span class="ms" style="font-size:16px;">open_in_new</span>
                     </a>
                     <% if (inquiry.whatsapp) { %>
