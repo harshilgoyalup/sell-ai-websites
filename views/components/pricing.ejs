@@ -28,9 +28,8 @@
         </div>
         
         <div>
-          <button onclick="choosePricingPackage('<%= pkg.id %>')" class="w-full inline-flex items-center justify-center gap-xs font-body-md text-body-md py-md px-md transition-all border border-primary <%= pkg.recommended ? 'bg-primary text-on-primary hover:opacity-85' : 'bg-transparent text-primary hover:bg-surface' %> cursor-pointer">
-            Get Started
-            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          <button onclick="choosePricingPackage('<%= pkg.id %>')" class="w-full inline-flex items-center justify-center gap-xs font-body-md text-body-md font-bold py-md px-md transition-all border border-primary <%= pkg.recommended ? 'bg-primary text-on-primary hover:opacity-85' : 'bg-transparent text-primary hover:bg-surface' %> cursor-pointer">
+            <%= pkg.buttonText || 'Get Started →' %>
           </button>
         </div>
       </div>
@@ -47,14 +46,14 @@
     const descTextarea = document.getElementById('description');
     
     if (packageId === 'starter') {
-      if (budgetSelect) budgetSelect.value = '$600 - $1,500';
-      if (descTextarea) descTextarea.value = "Hi Harshil, I'm interested in the STARTER package ($600). Details of my project: ";
+      if (budgetSelect) budgetSelect.value = '₹2,999';
+      if (descTextarea) descTextarea.value = "Hi Harshil, I'm interested in the STARTER package (₹2,999). Details of my project: ";
     } else if (packageId === 'professional') {
-      if (budgetSelect) budgetSelect.value = '$1,500 - $3,000';
-      if (descTextarea) descTextarea.value = "Hi Harshil, I'm interested in the PROFESSIONAL package ($1,500). Details of my project: ";
+      if (budgetSelect) budgetSelect.value = '₹6,999';
+      if (descTextarea) descTextarea.value = "Hi Harshil, I'm interested in the PROFESSIONAL package (₹6,999). Details of my project: ";
     } else if (packageId === 'custom') {
-      if (budgetSelect) budgetSelect.value = '$5,000+';
-      if (descTextarea) descTextarea.value = "Hi Harshil, I would like to get a custom quote for my project. Details: ";
+      if (budgetSelect) budgetSelect.value = '₹9,999+';
+      if (descTextarea) descTextarea.value = "Hi Harshil, I would like to discuss the CUSTOM package (₹9,999+). Details of my project: ";
     }
   }
 </script>
