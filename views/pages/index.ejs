@@ -249,6 +249,24 @@
           window.location.href = '/admin';
         }
       });
+
+      // Secret Mobile Trigger: Triple-tap the top header logo within 1.2 seconds to open Admin Panel
+      const logoTrigger = document.getElementById('secret-logo-trigger');
+      if (logoTrigger) {
+        let tapCount = 0;
+        let tapTimer = null;
+        logoTrigger.addEventListener('click', (e) => {
+          tapCount++;
+          if (tapCount === 1) {
+            tapTimer = setTimeout(() => { tapCount = 0; }, 1200);
+          } else if (tapCount >= 3) {
+            e.preventDefault();
+            clearTimeout(tapTimer);
+            tapCount = 0;
+            window.location.href = '/admin';
+          }
+        });
+      }
     });
   </script>
   <!-- Floating Email Subscribe Widget Component -->
