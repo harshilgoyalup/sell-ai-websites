@@ -1,11 +1,18 @@
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+const InquiryModel = require('./models/Inquiry');
+const SubscriberModel = require('./models/Subscriber');
 
 const dbPath = process.env.VERCEL
   ? path.join('/tmp', 'inquiries.json')
   : path.join(__dirname, 'inquiries.json');
 
-// Ensure directories exist
+const subscribersPath = process.env.VERCEL
+  ? path.join('/tmp', 'subscribers.json')
+  : path.join(__dirname, 'subscribers.json');
+
+// Ensure local directories exist
 if (!process.env.VERCEL) {
   const dir = path.dirname(dbPath);
   if (!fs.existsSync(dir)) {
@@ -13,12 +20,31 @@ if (!process.env.VERCEL) {
   }
 }
 
-// Read inquiries from JSON file
+let isMongoConnected = false;
+
+async function connectMongo() {
+  if (!process.env.MONGODB_URI) return false;
+  if (isMongoConnected && mongoose.connection.readyState === 1) return true;
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000
+    });
+    isMongoConnected = true;
+    console.log('MongoDB Atlas Connected Successfully.');
+    return true;
+  } catch (err) {
+    console.error('MongoDB Atlas Connection Warning (Using JSON fallback):', err.message);
+    isMongoConnected = false;
+    return false;
+  }
+}
+
+// Read inquiries from JSON file (Fallback)
 function readData() {
   try {
-    if (!fs.existsSync(dbPath)) {
-      return [];
-    }
+    if (!fs.existsSync(dbPath)) return [];
     const data = fs.readFileSync(dbPath, 'utf8');
     const parsed = JSON.parse(data || '[]');
     let modified = false;
@@ -44,9 +70,7 @@ function readData() {
       }
     });
 
-    if (modified) {
-      writeData(parsed);
-    }
+    if (modified) writeData(parsed);
     return parsed;
   } catch (error) {
     console.error('Error reading JSON DB:', error);
@@ -54,7 +78,7 @@ function readData() {
   }
 }
 
-// Write inquiries to JSON file
+// Write inquiries to JSON file (Fallback)
 function writeData(data) {
   try {
     fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
@@ -66,110 +90,207 @@ function writeData(data) {
 }
 
 async function initDb() {
-  if (!fs.existsSync(dbPath)) {
+  const mongoOk = await connectMongo();
+  if (!mongoOk && !fs.existsSync(dbPath)) {
     writeData([]);
     console.log('JSON Database Initialized empty.');
   }
 }
 
 async function getDb() {
+  const mongoOk = await connectMongo();
+
   return {
     get: async (query, params = []) => {
+      if (mongoOk) {
+        try {
+          // Stats Calculation
+          if (query.includes('COUNT(*)') && query.includes('SUM(CASE')) {
+            const all = await InquiryModel.find().lean();
+            return {
+              total: all.length,
+              newCount: all.filter(i => i.status === 'NEW').length,
+              discussionCount: all.filter(i => i.status === 'IN DISCUSSION').length,
+              progressCount: all.filter(i => i.status === 'IN PROGRESS').length,
+              completedCount: all.filter(i => i.status === 'COMPLETED').length
+            };
+          }
+
+          // Duplicate Check
+          if (query.includes('SELECT id FROM inquiries WHERE email = ?')) {
+            const [email, description, twoMinutesAgo] = params;
+            const match = await InquiryModel.findOne({
+              email,
+              description,
+              createdAt: { $gte: twoMinutesAgo }
+            }).lean();
+            return match ? { id: match.id } : null;
+          }
+
+          // Select by ID
+          if (query.includes('WHERE id = ?')) {
+            const id = parseInt(params[0]);
+            const match = await InquiryModel.findOne({ id }).lean();
+            return match || null;
+          }
+        } catch (err) {
+          console.error('MongoDB query error, falling back to JSON:', err);
+        }
+      }
+
+      // JSON Fallback
       const data = readData();
-      
-      // Query 1: Stats calculation
       if (query.includes('COUNT(*)') && query.includes('SUM(CASE')) {
-        const stats = {
+        return {
           total: data.length,
           newCount: data.filter(i => i.status === 'NEW').length,
           discussionCount: data.filter(i => i.status === 'IN DISCUSSION').length,
           progressCount: data.filter(i => i.status === 'IN PROGRESS').length,
           completedCount: data.filter(i => i.status === 'COMPLETED').length
         };
-        return stats;
       }
-
-      // Query 2: Duplicate check
       if (query.includes('SELECT id FROM inquiries WHERE email = ?')) {
         const [email, description, twoMinutesAgo] = params;
-        const match = data.find(i => 
-          i.email === email && 
-          i.description === description && 
-          i.createdAt > twoMinutesAgo
-        );
+        const match = data.find(i => i.email === email && i.description === description && i.createdAt >= twoMinutesAgo);
         return match ? { id: match.id } : null;
       }
-
-      // Query 3: Select by ID
       if (query.includes('WHERE id = ?')) {
-        const id = params[0];
-        const match = data.find(i => i.id === parseInt(id));
+        const match = data.find(i => i.id === parseInt(params[0]));
         return match || null;
       }
-
       return null;
     },
 
     all: async (query, params = []) => {
-      let data = readData();
+      if (mongoOk) {
+        try {
+          if (query.includes('PRAGMA table_info')) {
+            return [{ name: 'id' }, { name: 'adminNotes' }];
+          }
 
-      // Query 1: PRAGMA table_info (migrations - return dummy columns info to satisfy checks)
-      if (query.includes('PRAGMA table_info')) {
-        return [
-          { name: 'id' },
-          { name: 'adminNotes' }
-        ];
+          if (query.includes('SELECT * FROM inquiries')) {
+            let filter = {};
+            if (query.includes('status = ?')) {
+              filter.status = new RegExp('^' + params[0] + '$', 'i');
+            }
+
+            let results = await InquiryModel.find(filter).sort({ createdAt: -1 }).lean();
+
+            if (query.includes('fullName LIKE ?')) {
+              const searchVal = params[params.length - 1].replace(/%/g, '').toLowerCase();
+              results = results.filter(i =>
+                (i.fullName && i.fullName.toLowerCase().includes(searchVal)) ||
+                (i.email && i.email.toLowerCase().includes(searchVal)) ||
+                (i.company && i.company.toLowerCase().includes(searchVal)) ||
+                (i.projectType && i.projectType.toLowerCase().includes(searchVal))
+              );
+            }
+            return results;
+          }
+        } catch (err) {
+          console.error('MongoDB query error in all(), falling back to JSON:', err);
+        }
       }
 
-      // Query 2: Fetch and filter list
+      // JSON Fallback
+      let data = readData();
+      if (query.includes('PRAGMA table_info')) {
+        return [{ name: 'id' }, { name: 'adminNotes' }];
+      }
       if (query.includes('SELECT * FROM inquiries')) {
-        // Apply status filter if present
-        if (query.includes('status = ?') || query.includes('status = ?')) {
+        if (query.includes('status = ?')) {
           const statusVal = params[0];
           data = data.filter(i => i.status.toUpperCase() === statusVal.toUpperCase());
         }
-
-        // Apply search query if present
-        if (query.includes('fullName LIKE ?') || query.includes('email LIKE ?')) {
+        if (query.includes('fullName LIKE ?')) {
           const searchVal = params[params.length - 1].replace(/%/g, '').toLowerCase();
-          data = data.filter(i => 
+          data = data.filter(i =>
             (i.fullName && i.fullName.toLowerCase().includes(searchVal)) ||
             (i.email && i.email.toLowerCase().includes(searchVal)) ||
             (i.company && i.company.toLowerCase().includes(searchVal)) ||
             (i.projectType && i.projectType.toLowerCase().includes(searchVal))
           );
         }
-
-        // Apply order by (descending by createdAt)
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         return data;
       }
-
       return [];
     },
 
     run: async (query, params = []) => {
-      const data = readData();
+      if (mongoOk) {
+        try {
+          // INSERT
+          if (query.includes('INSERT INTO inquiries')) {
+            const [fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt] = params;
+            const lastDoc = await InquiryModel.findOne().sort({ id: -1 }).lean();
+            const newId = lastDoc ? lastDoc.id + 1 : 1;
+            const newTrackingToken = 'tr_' + newId + Math.random().toString(36).substring(2, 7);
 
-      // Query 1: INSERT
+            const newDoc = new InquiryModel({
+              id: newId,
+              trackingToken: newTrackingToken,
+              fullName,
+              email,
+              whatsapp: whatsapp || '',
+              company: company || '',
+              projectType,
+              website: website || '',
+              budget,
+              timeline,
+              description,
+              status: status || 'NEW',
+              adminNotes: '',
+              milestones: [
+                { id: 1, title: 'Inquiry Received & Under Review', status: 'completed' },
+                { id: 2, title: 'Discovery & Proposal Alignment', status: 'in_progress' },
+                { id: 3, title: 'UI/UX Design & Architecture', status: 'pending' },
+                { id: 4, title: 'Development & Feature Build', status: 'pending' },
+                { id: 5, title: 'Testing, Review & Final Launch', status: 'pending' }
+              ],
+              createdAt: createdAt || new Date().toISOString(),
+              updatedAt: updatedAt || new Date().toISOString()
+            });
+
+            await newDoc.save();
+            return { lastID: newId, trackingToken: newTrackingToken };
+          }
+
+          // UPDATE status
+          if (query.includes('UPDATE inquiries SET status = ?')) {
+            const [status, updatedAt, id] = params;
+            const res = await InquiryModel.updateOne({ id: parseInt(id) }, { status, updatedAt });
+            return { changes: res.modifiedCount };
+          }
+
+          // UPDATE adminNotes
+          if (query.includes('UPDATE inquiries SET adminNotes = ?')) {
+            const [notes, updatedAt, id] = params;
+            const res = await InquiryModel.updateOne({ id: parseInt(id) }, { adminNotes: notes, updatedAt });
+            return { changes: res.modifiedCount };
+          }
+
+          // DELETE
+          if (query.includes('DELETE FROM inquiries WHERE id = ?')) {
+            const id = parseInt(params[0]);
+            const res = await InquiryModel.deleteOne({ id });
+            return { changes: res.deletedCount };
+          }
+        } catch (err) {
+          console.error('MongoDB mutation error, falling back to JSON:', err);
+        }
+      }
+
+      // JSON Fallback
+      const data = readData();
       if (query.includes('INSERT INTO inquiries')) {
         const [fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt] = params;
         const newId = data.length > 0 ? Math.max(...data.map(i => i.id)) + 1 : 1;
-        
         const newTrackingToken = 'tr_' + newId + Math.random().toString(36).substring(2, 7);
         const newInquiry = {
           id: newId,
           trackingToken: newTrackingToken,
-          fullName,
-          email,
-          whatsapp,
-          company,
-          projectType,
-          website,
-          budget,
-          timeline,
-          description,
-          status,
+          fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status,
           adminNotes: '',
           milestones: [
             { id: 1, title: 'Inquiry Received & Under Review', status: 'completed' },
@@ -178,55 +299,45 @@ async function getDb() {
             { id: 4, title: 'Development & Feature Build', status: 'pending' },
             { id: 5, title: 'Testing, Review & Final Launch', status: 'pending' }
           ],
-          createdAt,
-          updatedAt
+          createdAt, updatedAt
         };
-
         data.push(newInquiry);
         writeData(data);
         return { lastID: newId, trackingToken: newTrackingToken };
       }
 
-      // Query 2: UPDATE status
       if (query.includes('UPDATE inquiries SET status = ?')) {
         const [status, updatedAt, id] = params;
-        const index = data.findIndex(i => i.id === parseInt(id));
-        if (index !== -1) {
-          data[index].status = status;
-          data[index].updatedAt = updatedAt;
+        const idx = data.findIndex(i => i.id === parseInt(id));
+        if (idx !== -1) {
+          data[idx].status = status;
+          data[idx].updatedAt = updatedAt;
           writeData(data);
           return { changes: 1 };
         }
         return { changes: 0 };
       }
 
-      // Query 3: UPDATE adminNotes
       if (query.includes('UPDATE inquiries SET adminNotes = ?')) {
         const [notes, updatedAt, id] = params;
-        const index = data.findIndex(i => i.id === parseInt(id));
-        if (index !== -1) {
-          data[index].adminNotes = notes;
-          data[index].updatedAt = updatedAt;
+        const idx = data.findIndex(i => i.id === parseInt(id));
+        if (idx !== -1) {
+          data[idx].adminNotes = notes;
+          data[idx].updatedAt = updatedAt;
           writeData(data);
           return { changes: 1 };
         }
         return { changes: 0 };
       }
 
-      // Query 4: DELETE
       if (query.includes('DELETE FROM inquiries WHERE id = ?')) {
-        const id = params[0];
-        const index = data.findIndex(i => i.id === parseInt(id));
-        if (index !== -1) {
-          data.splice(index, 1);
+        const id = parseInt(params[0]);
+        const idx = data.findIndex(i => i.id === id);
+        if (idx !== -1) {
+          data.splice(idx, 1);
           writeData(data);
           return { changes: 1 };
         }
-        return { changes: 0 };
-      }
-
-      // Query 5: ALTER TABLE migrations (ignore)
-      if (query.includes('ALTER TABLE inquiries')) {
         return { changes: 0 };
       }
 
@@ -235,11 +346,17 @@ async function getDb() {
   };
 }
 
-const subscribersPath = process.env.VERCEL
-  ? path.join('/tmp', 'subscribers.json')
-  : path.join(__dirname, 'subscribers.json');
+async function getSubscribers() {
+  const mongoOk = await connectMongo();
+  if (mongoOk) {
+    try {
+      return await SubscriberModel.find().lean();
+    } catch (err) {
+      console.error('Error fetching subscribers from Mongo:', err);
+    }
+  }
 
-function getSubscribers() {
+  // Fallback
   try {
     if (!fs.existsSync(subscribersPath)) return [];
     const data = fs.readFileSync(subscribersPath, 'utf8');
@@ -250,51 +367,104 @@ function getSubscribers() {
   }
 }
 
-function addSubscriber(email) {
+async function addSubscriber(email) {
+  const mongoOk = await connectMongo();
+  const cleanEmail = email.toLowerCase().trim();
+
+  if (mongoOk) {
+    try {
+      const existing = await SubscriberModel.findOne({ email: cleanEmail }).lean();
+      if (existing) {
+        return { success: true, alreadySubscribed: true, entry: existing };
+      }
+      const lastSub = await SubscriberModel.findOne().sort({ id: -1 }).lean();
+      const newId = lastSub ? lastSub.id + 1 : 1;
+      const newDoc = new SubscriberModel({
+        id: newId,
+        email: cleanEmail,
+        subscribedAt: new Date().toISOString()
+      });
+      await newDoc.save();
+      return { success: true, alreadySubscribed: false, entry: newDoc.toObject() };
+    } catch (err) {
+      console.error('Error adding subscriber to Mongo:', err);
+    }
+  }
+
+  // Fallback
   try {
-    const list = getSubscribers();
-    const existing = list.find(s => s.email.toLowerCase() === email.toLowerCase());
+    const list = await getSubscribers();
+    const existing = list.find(s => s.email.toLowerCase() === cleanEmail);
     if (existing) {
       return { success: true, alreadySubscribed: true, entry: existing };
     }
     const newEntry = {
       id: list.length > 0 ? Math.max(...list.map(s => s.id)) + 1 : 1,
-      email: email.toLowerCase().trim(),
+      email: cleanEmail,
       subscribedAt: new Date().toISOString()
     };
     list.push(newEntry);
     fs.writeFileSync(subscribersPath, JSON.stringify(list, null, 2), 'utf8');
     return { success: true, alreadySubscribed: false, entry: newEntry };
   } catch (err) {
-    console.error('Error saving subscriber:', err);
+    console.error('Error saving subscriber to JSON:', err);
     return { success: false, error: err.message };
   }
 }
 
-function getInquiryByToken(token) {
+async function getInquiryByToken(token) {
+  const mongoOk = await connectMongo();
+  if (mongoOk) {
+    try {
+      const match = await InquiryModel.findOne({ trackingToken: token }).lean();
+      if (match) return match;
+    } catch (err) {
+      console.error('Error fetching inquiry by token from Mongo:', err);
+    }
+  }
+
+  // Fallback
   try {
     const list = readData();
-    const match = list.find(i => i.trackingToken === token);
-    return match || null;
+    return list.find(i => i.trackingToken === token) || null;
   } catch (err) {
-    console.error('Error fetching inquiry by token:', err);
+    console.error('Error fetching inquiry by token from JSON:', err);
     return null;
   }
 }
 
-function updateInquiryMilestones(id, milestones) {
+async function updateInquiryMilestones(id, milestones) {
+  const mongoOk = await connectMongo();
+  const numId = parseInt(id);
+
+  if (mongoOk) {
+    try {
+      const updated = await InquiryModel.findOneAndUpdate(
+        { id: numId },
+        { milestones, updatedAt: new Date().toISOString() },
+        { new: true }
+      ).lean();
+      if (updated) {
+        return { success: true, inquiry: updated };
+      }
+    } catch (err) {
+      console.error('Error updating milestones in Mongo:', err);
+    }
+  }
+
+  // Fallback
   try {
     const list = readData();
-    const index = list.findIndex(i => i.id === parseInt(id));
-    if (index !== -1) {
-      list[index].milestones = milestones;
-      list[index].updatedAt = new Date().toISOString();
+    const idx = list.findIndex(i => i.id === numId);
+    if (idx !== -1) {
+      list[idx].milestones = milestones;
+      list[idx].updatedAt = new Date().toISOString();
       writeData(list);
-      return { success: true, inquiry: list[index] };
+      return { success: true, inquiry: list[idx] };
     }
     return { success: false, message: 'Inquiry not found.' };
   } catch (err) {
-    console.error('Error updating inquiry milestones:', err);
+    console.error('Error updating inquiry milestones in JSON:', err);
     return { success: false, error: err.message };
   }
 }

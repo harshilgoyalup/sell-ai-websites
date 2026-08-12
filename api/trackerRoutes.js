@@ -4,9 +4,9 @@ const { getInquiryByToken, updateInquiryMilestones } = require('../database/db')
 const siteConfig = require('../data/siteConfig');
 
 // GET /track/:token - Public client live progress tracking page
-router.get('/track/:token', (req, res) => {
+router.get('/track/:token', async (req, res) => {
   const { token } = req.params;
-  const inquiry = getInquiryByToken(token);
+  const inquiry = await getInquiryByToken(token);
 
   if (!inquiry) {
     return res.status(404).render('pages/error', {
@@ -24,7 +24,7 @@ router.get('/track/:token', (req, res) => {
 });
 
 // PUT /api/inquiries/:id/milestones - Admin endpoint to update milestone checklist
-router.put('/api/inquiries/:id/milestones', (req, res) => {
+router.put('/api/inquiries/:id/milestones', async (req, res) => {
   if (!req.session || !req.session.isAdmin) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
@@ -36,7 +36,7 @@ router.put('/api/inquiries/:id/milestones', (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid milestones array.' });
   }
 
-  const result = updateInquiryMilestones(id, milestones);
+  const result = await updateInquiryMilestones(id, milestones);
 
   if (result.success) {
     return res.json({ success: true, inquiry: result.inquiry });

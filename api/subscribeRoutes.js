@@ -19,7 +19,7 @@ router.post('/subscribe', async (req, res) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const result = addSubscriber(cleanEmail);
+    const result = await addSubscriber(cleanEmail);
 
     if (!result.success) {
       return res.status(500).json({
@@ -52,11 +52,11 @@ router.post('/subscribe', async (req, res) => {
 });
 
 // GET /api/subscribers - Admin list of subscribers
-router.get('/subscribers', (req, res) => {
+router.get('/subscribers', async (req, res) => {
   if (!req.session || !req.session.isAdmin) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
-  const list = getSubscribers();
+  const list = await getSubscribers();
   return res.json({ success: true, subscribers: list });
 });
 
