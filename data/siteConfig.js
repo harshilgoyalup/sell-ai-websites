@@ -1,11 +1,12 @@
 const siteConfig = {
   name: "Harshil Goyal",
   email: "arveharshil@gmail.com",
-  whatsapp: "+919876543210", // configured WhatsApp number (including country code)
+  phone: "+91 8968929568",
+  whatsapp: "+918968929568",
   whatsappMessage: "Hi Harshil, I'm interested in getting a website. I'd like to discuss my project.",
-  github: "https://github.com/harshilgoyal",
-  linkedin: "https://linkedin.com/in/harshilgoyal",
-  twitter: "https://twitter.com/harshilgoyal"
+  github: "https://github.com/harshilgoyalup",
+  linkedin: "https://www.linkedin.com/in/harshil-goyal-aab918292/",
+  twitter: ""
 };
 
 module.exports = siteConfig;

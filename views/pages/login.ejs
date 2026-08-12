@@ -4,66 +4,411 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>Admin Login | <%= siteConfig.name %></title>
-  <!-- Material Symbols -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <!-- Geist Font -->
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --border: #e4e4e4;
+      --bg: #ffffff;
+      --bg-subtle: #f8f8f8;
+      --text: #111111;
+      --text-muted: #666666;
+      --text-faint: #999999;
+    }
+
     body {
+      font-family: 'Geist', -apple-system, sans-serif;
+      background: var(--bg-subtle);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Left panel — branding */
+    .left-panel {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      min-height: 100vh;
+    }
+
+    .left-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .left-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .left-logo-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .left-headline {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 0;
+    }
+    .left-headline h1 {
+      font-size: 42px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .left-headline p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+      max-width: 340px;
+    }
+
+    .left-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .stat-cell {
+      padding: 20px;
+      background: rgba(255,255,255,0.04);
+    }
+    .stat-cell-num {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-cell-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    /* Right panel — login form */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    .right-top {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .right-top-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .login-form-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 380px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .form-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 12px;
+    }
+    .form-heading {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    .form-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    /* Error */
+    .error-box {
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 1px solid #fcc;
+      background: #fff8f8;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #c00;
+    }
+    .error-box.show { display: flex; }
+    .error-icon {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+    }
+
+    /* Google Sign-in button */
+    .google-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
       font-family: 'Geist', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .google-btn:hover {
+      background: var(--bg-subtle);
+      border-color: #bbb;
+    }
+    .google-btn:active {
+      transform: scale(0.99);
+    }
+    .google-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .google-btn svg {
+      flex-shrink: 0;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-size: 11px; color: var(--text-faint); font-weight: 500; }
+
+    .access-note {
+      font-size: 12px;
+      color: var(--text-faint);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .access-note strong { color: var(--text-muted); }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--text);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* Right footer */
+    .right-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .contact-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.12s;
+    }
+    .contact-link:hover { color: var(--text); }
+    .contact-link svg { flex-shrink: 0; }
+    .contact-link span { display: inline-block; }
+
+    .footer-legal {
+      font-size: 11px;
+      color: var(--text-faint);
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 32px 24px; }
+      .login-form-container { max-width: 100%; }
     }
   </style>
 </head>
-<body class="bg-surface-container-lowest text-on-surface antialiased flex flex-col min-h-screen justify-between">
+<body>
 
-  <!-- Header Component -->
-  <%- include('../components/header') %>
-
-  <!-- Main Login Content -->
-  <main class="flex-1 flex flex-col justify-center px-lg md:px-xl max-w-container-max mx-auto py-xxl w-full max-w-md">
-    <div class="border border-outline-variant p-lg md:p-xl bg-surface-container-lowest text-center">
-      <div class="mb-lg">
-        <span class="font-label-sm-caps text-label-sm-caps text-secondary block mb-xs uppercase tracking-widest">SECURE ACCESS</span>
-        <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">Admin Console</h1>
+  <!-- Left Branding Panel -->
+  <div class="left-panel">
+    <div class="left-logo">
+      <div class="left-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 17L10 11L4 5M12 19H20" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
+      <span class="left-logo-text"><%= siteConfig.name %></span>
+    </div>
 
-      <!-- Error Message Container (Hidden by default) -->
-      <div id="error-message" class="hidden mb-lg p-md border border-error text-error text-body-md bg-error-container/20 flex items-center gap-xs text-left">
-        <span class="material-symbols-outlined text-base">error</span>
-        <span>Google authentication failed.</span>
+    <div class="left-headline">
+      <h1>Client Lead<br/>Console</h1>
+      <p>Manage project inquiries, track lead pipelines, update statuses and follow up with clients — all in one place.</p>
+    </div>
+
+    <div class="left-stats">
+      <div class="stat-cell">
+        <div class="stat-cell-num">100%</div>
+        <div class="stat-cell-label">Secure Auth</div>
       </div>
-
-      <!-- Login Button -->
-      <div class="py-md">
-        <p class="font-body-md text-body-md text-secondary mb-lg">
-          Access is restricted to authorized administrators. Sign in with your Google Workspace or Gmail account to verify identity.
-        </p>
-        <button id="google-login-btn" onclick="loginWithGoogle()" class="w-full inline-flex items-center justify-center gap-sm border border-outline-variant hover:border-primary text-primary hover:bg-surface font-body-lg text-body-lg py-md transition-all cursor-pointer group">
-          <svg class="w-5 h-5 group-hover:scale-105 transition-transform" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-            <g transform="matrix(1, 0, 0, 1, 0, 0)">
-              <path d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.56h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48c0,-0.61 -0.05,-1.2 -0.16,-1.88Z" fill="#4285F4" />
-              <path d="M12,20.6c2.43,0 4.47,-0.8 5.96,-2.18l-3.3,-2.56c-0.9,0.6 -2.07,0.98 -3.3,0.98c-2.34,0 -4.33,-1.58 -5.04,-3.71H2.9v2.64C4.38,18.7 7.97,20.6 12,20.6Z" fill="#34A853" />
-              <path d="M6.96,13.13c-0.18,-0.54 -0.28,-1.11 -0.28,-1.7c0,-0.59 0.1,-1.16 0.28,-1.7V7.09H2.9C2.3,8.27 1.96,9.6 1.96,11c0,1.4 0.34,2.73 0.94,3.91l3.1,-2.64c0,-0.43 0,-0.87 0,-1.14Z" fill="#FBBC05" />
-              <path d="M12,5.2c1.32,0 2.5,0.45 3.44,1.35l2.58,-2.58C16.46,2.44 14.43,1.4 12,1.4C7.97,1.4 4.38,3.3 2.9,6.26l3.16,2.64c0.71,-2.13 2.7,-3.7 5.04,-3.7z" fill="#EA4335" />
-            </g>
-          </svg>
-          <span id="btn-text">Sign In with Google</span>
-        </button>
+      <div class="stat-cell">
+        <div class="stat-cell-num">Live</div>
+        <div class="stat-cell-label">Real-time Leads</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-num">Email</div>
+        <div class="stat-cell-label">Notifications</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-num">JSON</div>
+        <div class="stat-cell-label">Export Ready</div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <!-- Footer Component -->
-  <%- include('../components/footer') %>
+  <!-- Right Login Panel -->
+  <div class="right-panel">
+    <div class="right-top">
+      <span class="right-top-tag">Secure Access</span>
+    </div>
 
-  <!-- Firebase Auth CDN Scripts -->
+    <div class="login-form-container">
+      <div class="form-eyebrow">Admin Portal</div>
+      <h2 class="form-heading">Sign in to<br/>your dashboard</h2>
+      <p class="form-sub">Access is restricted to authorized administrators only. Sign in with your Google account to continue.</p>
+
+      <!-- Error Message -->
+      <div class="error-box" id="error-box">
+        <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <span id="error-msg">Authentication failed. Please try again.</span>
+      </div>
+
+      <!-- Google Login Button -->
+      <button class="google-btn" id="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span id="btn-label">Continue with Google</span>
+      </button>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">Authorized accounts only</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <p class="access-note">
+        Only <strong>arveharshil@gmail.com</strong> and<br/>
+        <strong>harshil1536dcmy@gmail.com</strong> are permitted.
+      </p>
+    </div>
+
+    <!-- Right Footer with Links -->
+    <div class="right-footer">
+      <div class="contact-links">
+        <!-- GitHub -->
+        <a href="https://github.com/harshilgoyalup" target="_blank" rel="noopener noreferrer" class="contact-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <span>harshilgoyalup</span>
+        </a>
+
+        <!-- LinkedIn -->
+        <a href="https://www.linkedin.com/in/harshil-goyal-aab918292/" target="_blank" rel="noopener noreferrer" class="contact-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          <span>Harshil Goyal</span>
+        </a>
+
+        <!-- Phone -->
+        <a href="tel:+918968929568" class="contact-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.06-1.06a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+          <span>+91 8968929568</span>
+        </a>
+      </div>
+      <div class="footer-legal"><%= siteConfig.name %> Admin Portal &copy; <%= new Date().getFullYear() %></div>
+    </div>
+  </div>
+
+  <!-- Firebase Auth -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // User's Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCD2Ftbo9PWPtXZjFpA4FufDNkV9YuijhY",
       authDomain: "main-important-database.firebaseapp.com",
@@ -74,54 +419,56 @@
       measurementId: "G-XW1H7767TX"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
     window.loginWithGoogle = async function() {
-      const errorDiv = document.getElementById('error-message');
-      const btnText = document.getElementById('btn-text');
-      const loginBtn = document.getElementById('google-login-btn');
+      const btn = document.getElementById('google-btn');
+      const label = document.getElementById('btn-label');
+      const errorBox = document.getElementById('error-box');
+      const errorMsg = document.getElementById('error-msg');
+
+      // Reset error
+      errorBox.classList.remove('show');
       
-      errorDiv.classList.add('hidden');
-      btnText.textContent = 'Signing in...';
-      loginBtn.disabled = true;
-      loginBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      // Loading state
+      btn.disabled = true;
+      label.textContent = 'Signing in...';
+      btn.insertAdjacentHTML('afterbegin', '<div class="spinner" id="spinner"></div>');
+
+      function resetBtn() {
+        btn.disabled = false;
+        label.textContent = 'Continue with Google';
+        document.getElementById('spinner')?.remove();
+      }
 
       try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
 
-        // Send token to server for session validation
         const response = await fetch('/admin/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken })
         });
 
         const data = await response.json();
-        
+
         if (response.ok && data.success) {
+          label.textContent = 'Redirecting...';
           window.location.href = '/admin';
         } else {
-          errorDiv.querySelector('span:last-child').textContent = data.message || 'Access denied: Unauthorized email account.';
-          errorDiv.classList.remove('hidden');
+          errorMsg.textContent = data.message || 'Access denied. Unauthorized account.';
+          errorBox.classList.add('show');
           resetBtn();
         }
       } catch (error) {
-        console.error('Google sign in error:', error);
-        errorDiv.querySelector('span:last-child').textContent = error.message || 'Google authentication failed.';
-        errorDiv.classList.remove('hidden');
+        if (error.code !== 'auth/popup-closed-by-user') {
+          errorMsg.textContent = error.message || 'Google authentication failed. Please try again.';
+          errorBox.classList.add('show');
+        }
         resetBtn();
-      }
-
-      function resetBtn() {
-        btnText.textContent = 'Sign In with Google';
-        loginBtn.disabled = false;
-        loginBtn.classList.remove('opacity-60', 'cursor-not-allowed');
       }
     };
   </script>
