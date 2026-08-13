@@ -107,7 +107,7 @@ async function connectMongo() {
   try {
     await mongoose.connect(uri, {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000
+      serverSelectionTimeoutMS: 2000
     });
     isMongoConnected = true;
     console.log('MongoDB Atlas Connected Successfully.');

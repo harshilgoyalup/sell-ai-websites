@@ -18,39 +18,16 @@ initDb()
   .then(() => console.log('SQLite Database Initialized.'))
   .catch((err) => console.error('Database Initialization Failed:', err));
 
-const connectMongoPkg = require('connect-mongo');
-const MongoStore = connectMongoPkg.default || connectMongoPkg;
-
-let sessionStore;
-if (process.env.MONGODB_URI) {
-  try {
-    sessionStore = MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      collectionName: 'sessions',
-      ttl: 14 * 24 * 60 * 60,
-      autoRemove: 'native'
-    });
-    if (sessionStore && typeof sessionStore.on === 'function') {
-      sessionStore.on('error', (err) => {
-        console.warn('MongoStore connection notice:', err.message);
-      });
-    }
-  } catch (e) {
-    console.warn('MongoStore init fallback:', e.message);
-  }
-}
-
-// Express Session Setup with Persistent Session Cookie
+// Express Session Setup — Fast & Reliable Serverless Sessions
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'harshil_goyal_session_fallback_secret_xyz',
     resave: false,
     saveUninitialized: false,
-    ...(sessionStore ? { store: sessionStore } : {}),
     cookie: {
       secure: false,
       sameSite: 'lax',
-      maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days persistent cookie
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days persistent cookie
     }
   })
 );
