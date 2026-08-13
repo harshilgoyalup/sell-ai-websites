@@ -3,19 +3,20 @@
   "short_name": "Harshil Goyal",
   "description": "AI-Powered Web Development Services & Client Progress Tracker Portal",
   "start_url": "/",
+  "id": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/harshilgoyalup/sell-ai-websites/master/public/icons/icon-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/harshilgoyalup/sell-ai-websites/master/public/icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

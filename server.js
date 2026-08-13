@@ -46,6 +46,12 @@ app.use(
   })
 );
 
+// Serve Manifest.json with explicit PWA headers
+app.get('/manifest.json', (req, res) => {
+  res.header('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
 // Global Variables in templates
 app.locals.siteConfig = siteConfig;
 
