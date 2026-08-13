@@ -18,14 +18,23 @@ initDb()
   .then(() => console.log('SQLite Database Initialized.'))
   .catch((err) => console.error('Database Initialization Failed:', err));
 
+const connectMongoPkg = require('connect-mongo');
+const MongoStore = connectMongoPkg.default || connectMongoPkg;
+
 let sessionStore;
 if (process.env.MONGODB_URI) {
   try {
     sessionStore = MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
       collectionName: 'sessions',
-      ttl: 14 * 24 * 60 * 60
+      ttl: 14 * 24 * 60 * 60,
+      autoRemove: 'native'
     });
+    if (sessionStore && typeof sessionStore.on === 'function') {
+      sessionStore.on('error', (err) => {
+        console.warn('MongoStore connection notice:', err.message);
+      });
+    }
   } catch (e) {
     console.warn('MongoStore init fallback:', e.message);
   }

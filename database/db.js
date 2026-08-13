@@ -84,10 +84,23 @@ async function saveToFirebase(collectionName, data) {
 // MONGODB ATLAS CLOUD LAYER
 // ----------------------------------------------------
 const DEFAULT_MONGO_URI = "mongodb+srv://arveharshil_db_user:MACa7WCpf0wYzJdW@cluster0.hjkukxq.mongodb.net/sell-ai-websites?retryWrites=true&w=majority";
+// Register global Mongoose error listener to prevent process crashes
+mongoose.connection.on('error', (err) => {
+  console.warn('Mongoose connection notice:', err.message);
+});
+
+// Guard against uncaught Mongo SRV DNS errors
+process.on('unhandledRejection', (reason) => {
+  if (reason && reason.message && (reason.message.includes('querySrv') || reason.message.includes('ECONNREFUSED'))) {
+    console.warn('Handled Mongo DNS notice:', reason.message);
+    return;
+  }
+});
+
 let isMongoConnected = false;
 
 async function connectMongo() {
-  const uri = process.env.MONGODB_URI || DEFAULT_MONGO_URI;
+  const uri = process.env.MONGODB_URI;
   if (!uri) return false;
   if (isMongoConnected && mongoose.connection.readyState === 1) return true;
 
@@ -100,7 +113,7 @@ async function connectMongo() {
     console.log('MongoDB Atlas Connected Successfully.');
     return true;
   } catch (err) {
-    console.error('MongoDB Atlas Connection Warning:', err.message);
+    console.warn('MongoDB Atlas Connection Notice (Using Cloud Fallback):', err.message);
     isMongoConnected = false;
     return false;
   }
