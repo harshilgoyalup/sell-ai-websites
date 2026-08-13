@@ -12,7 +12,7 @@ const subscribersPath = process.env.VERCEL
   ? path.join('/tmp', 'subscribers.json')
   : path.join(__dirname, 'subscribers.json');
 
-// Ensure local directories exist
+// Ensure local directories exist in non-Vercel environment
 if (!process.env.VERCEL) {
   const dir = path.dirname(dbPath);
   if (!fs.existsSync(dir)) {
@@ -20,6 +20,69 @@ if (!process.env.VERCEL) {
   }
 }
 
+// ----------------------------------------------------
+// FIREBASE CLOUD REST SYNC LAYER (Zero-config for user)
+// ----------------------------------------------------
+const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
+
+function getFirebaseUrl(collectionName) {
+  if (!FIREBASE_PROJECT_ID) return null;
+  let baseUrl = `https://${FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com/${collectionName}.json`;
+  if (!baseUrl.includes('firebaseio.com')) {
+    baseUrl = `https://${FIREBASE_PROJECT_ID}.firebaseio.com/${collectionName}.json`;
+  }
+  return FIREBASE_API_KEY ? `${baseUrl}?auth=${FIREBASE_API_KEY}` : baseUrl;
+}
+
+async function fetchFromFirebase(collectionName) {
+  const url = getFirebaseUrl(collectionName);
+  if (!url) return null;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      // Fallback try standard domain without -default-rtdb
+      const altUrl = `https://${FIREBASE_PROJECT_ID}.firebaseio.com/${collectionName}.json` + (FIREBASE_API_KEY ? `?auth=${FIREBASE_API_KEY}` : '');
+      const altRes = await fetch(altUrl);
+      if (!altRes.ok) return null;
+      const altData = await altRes.json();
+      return Array.isArray(altData) ? altData : (altData ? Object.values(altData) : []);
+    }
+    const data = await res.json();
+    if (!data) return [];
+    return Array.isArray(data) ? data : Object.values(data);
+  } catch (err) {
+    console.error(`Firebase fetch error [${collectionName}]:`, err.message);
+    return null;
+  }
+}
+
+async function saveToFirebase(collectionName, data) {
+  const url = getFirebaseUrl(collectionName);
+  if (!url) return false;
+  try {
+    await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    // Also update alt domain
+    const altUrl = `https://${FIREBASE_PROJECT_ID}.firebaseio.com/${collectionName}.json` + (FIREBASE_API_KEY ? `?auth=${FIREBASE_API_KEY}` : '');
+    fetch(altUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).catch(() => {});
+    return true;
+  } catch (err) {
+    console.error(`Firebase save error [${collectionName}]:`, err.message);
+    return false;
+  }
+}
+
+// ----------------------------------------------------
+// MONGODB ATLAS CLOUD LAYER
+// ----------------------------------------------------
 let isMongoConnected = false;
 
 async function connectMongo() {
@@ -35,14 +98,27 @@ async function connectMongo() {
     console.log('MongoDB Atlas Connected Successfully.');
     return true;
   } catch (err) {
-    console.error('MongoDB Atlas Connection Warning (Using JSON fallback):', err.message);
+    console.error('MongoDB Atlas Connection Warning:', err.message);
     isMongoConnected = false;
     return false;
   }
 }
 
-// Read inquiries from JSON file (Fallback)
-function readData() {
+// ----------------------------------------------------
+// READ & WRITE DATA HELPERS WITH HYBRID CLOUD SYNC
+// ----------------------------------------------------
+async function readDataAsync() {
+  // 1. Try Firebase Cloud first if available
+  if (FIREBASE_PROJECT_ID) {
+    const fbData = await fetchFromFirebase('inquiries');
+    if (fbData && Array.isArray(fbData)) {
+      // Sync local /tmp cache
+      try { fs.writeFileSync(dbPath, JSON.stringify(fbData, null, 2), 'utf8'); } catch (e) {}
+      return fbData;
+    }
+  }
+
+  // 2. Read local /tmp JSON file
   try {
     if (!fs.existsSync(dbPath)) return [];
     const data = fs.readFileSync(dbPath, 'utf8');
@@ -70,7 +146,7 @@ function readData() {
       }
     });
 
-    if (modified) writeData(parsed);
+    if (modified) writeDataAsync(parsed);
     return parsed;
   } catch (error) {
     console.error('Error reading JSON DB:', error);
@@ -78,22 +154,43 @@ function readData() {
   }
 }
 
-// Write inquiries to JSON file (Fallback)
+function readData() {
+  try {
+    if (!fs.existsSync(dbPath)) return [];
+    const data = fs.readFileSync(dbPath, 'utf8');
+    return JSON.parse(data || '[]');
+  } catch (error) {
+    return [];
+  }
+}
+
+async function writeDataAsync(data) {
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error writing local JSON DB:', error);
+  }
+  // Sync to Firebase Cloud asynchronously
+  if (FIREBASE_PROJECT_ID) {
+    await saveToFirebase('inquiries', data);
+  }
+  return true;
+}
+
 function writeData(data) {
   try {
     fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
-    return true;
-  } catch (error) {
-    console.error('Error writing JSON DB:', error);
-    return false;
+  } catch (error) {}
+  if (FIREBASE_PROJECT_ID) {
+    saveToFirebase('inquiries', data).catch(() => {});
   }
+  return true;
 }
 
 async function initDb() {
   const mongoOk = await connectMongo();
-  if (!mongoOk && !fs.existsSync(dbPath)) {
-    writeData([]);
-    console.log('JSON Database Initialized empty.');
+  if (!mongoOk) {
+    await readDataAsync();
   }
 }
 
@@ -104,7 +201,6 @@ async function getDb() {
     get: async (query, params = []) => {
       if (mongoOk) {
         try {
-          // Stats Calculation
           if (query.includes('COUNT(*)') && query.includes('SUM(CASE')) {
             const all = await InquiryModel.find().lean();
             return {
@@ -116,7 +212,6 @@ async function getDb() {
             };
           }
 
-          // Duplicate Check
           if (query.includes('SELECT id FROM inquiries WHERE email = ?')) {
             const [email, description, twoMinutesAgo] = params;
             const match = await InquiryModel.findOne({
@@ -127,19 +222,18 @@ async function getDb() {
             return match ? { id: match.id } : null;
           }
 
-          // Select by ID
           if (query.includes('WHERE id = ?')) {
             const id = parseInt(params[0]);
             const match = await InquiryModel.findOne({ id }).lean();
             return match || null;
           }
         } catch (err) {
-          console.error('MongoDB query error, falling back to JSON:', err);
+          console.error('MongoDB query error, falling back to Firebase/JSON:', err);
         }
       }
 
-      // JSON Fallback
-      const data = readData();
+      // Firebase / JSON Fallback
+      const data = await readDataAsync();
       if (query.includes('COUNT(*)') && query.includes('SUM(CASE')) {
         return {
           total: data.length,
@@ -188,12 +282,12 @@ async function getDb() {
             return results;
           }
         } catch (err) {
-          console.error('MongoDB query error in all(), falling back to JSON:', err);
+          console.error('MongoDB query error in all(), falling back to Firebase/JSON:', err);
         }
       }
 
-      // JSON Fallback
-      let data = readData();
+      // Firebase / JSON Fallback
+      let data = await readDataAsync();
       if (query.includes('PRAGMA table_info')) {
         return [{ name: 'id' }, { name: 'adminNotes' }];
       }
@@ -220,7 +314,6 @@ async function getDb() {
     run: async (query, params = []) => {
       if (mongoOk) {
         try {
-          // INSERT
           if (query.includes('INSERT INTO inquiries')) {
             const [fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt] = params;
             const lastDoc = await InquiryModel.findOne().sort({ id: -1 }).lean();
@@ -256,33 +349,30 @@ async function getDb() {
             return { lastID: newId, trackingToken: newTrackingToken };
           }
 
-          // UPDATE status
           if (query.includes('UPDATE inquiries SET status = ?')) {
             const [status, updatedAt, id] = params;
             const res = await InquiryModel.updateOne({ id: parseInt(id) }, { status, updatedAt });
             return { changes: res.modifiedCount };
           }
 
-          // UPDATE adminNotes
           if (query.includes('UPDATE inquiries SET adminNotes = ?')) {
             const [notes, updatedAt, id] = params;
             const res = await InquiryModel.updateOne({ id: parseInt(id) }, { adminNotes: notes, updatedAt });
             return { changes: res.modifiedCount };
           }
 
-          // DELETE
           if (query.includes('DELETE FROM inquiries WHERE id = ?')) {
             const id = parseInt(params[0]);
             const res = await InquiryModel.deleteOne({ id });
             return { changes: res.deletedCount };
           }
         } catch (err) {
-          console.error('MongoDB mutation error, falling back to JSON:', err);
+          console.error('MongoDB mutation error, falling back to Firebase/JSON:', err);
         }
       }
 
-      // JSON Fallback
-      const data = readData();
+      // Firebase / JSON Fallback
+      const data = await readDataAsync();
       if (query.includes('INSERT INTO inquiries')) {
         const [fullName, email, whatsapp, company, projectType, website, budget, timeline, description, status, createdAt, updatedAt] = params;
         const newId = data.length > 0 ? Math.max(...data.map(i => i.id)) + 1 : 1;
@@ -302,7 +392,7 @@ async function getDb() {
           createdAt, updatedAt
         };
         data.push(newInquiry);
-        writeData(data);
+        await writeDataAsync(data);
         return { lastID: newId, trackingToken: newTrackingToken };
       }
 
@@ -312,7 +402,7 @@ async function getDb() {
         if (idx !== -1) {
           data[idx].status = status;
           data[idx].updatedAt = updatedAt;
-          writeData(data);
+          await writeDataAsync(data);
           return { changes: 1 };
         }
         return { changes: 0 };
@@ -324,7 +414,7 @@ async function getDb() {
         if (idx !== -1) {
           data[idx].adminNotes = notes;
           data[idx].updatedAt = updatedAt;
-          writeData(data);
+          await writeDataAsync(data);
           return { changes: 1 };
         }
         return { changes: 0 };
@@ -335,7 +425,7 @@ async function getDb() {
         const idx = data.findIndex(i => i.id === id);
         if (idx !== -1) {
           data.splice(idx, 1);
-          writeData(data);
+          await writeDataAsync(data);
           return { changes: 1 };
         }
         return { changes: 0 };
@@ -356,7 +446,13 @@ async function getSubscribers() {
     }
   }
 
-  // Fallback
+  // Firebase Fallback
+  if (FIREBASE_PROJECT_ID) {
+    const fbSubs = await fetchFromFirebase('subscribers');
+    if (fbSubs && Array.isArray(fbSubs)) return fbSubs;
+  }
+
+  // JSON Fallback
   try {
     if (!fs.existsSync(subscribersPath)) return [];
     const data = fs.readFileSync(subscribersPath, 'utf8');
@@ -391,7 +487,7 @@ async function addSubscriber(email) {
     }
   }
 
-  // Fallback
+  // Firebase / JSON Fallback
   try {
     const list = await getSubscribers();
     const existing = list.find(s => s.email.toLowerCase() === cleanEmail);
@@ -405,9 +501,12 @@ async function addSubscriber(email) {
     };
     list.push(newEntry);
     fs.writeFileSync(subscribersPath, JSON.stringify(list, null, 2), 'utf8');
+    if (FIREBASE_PROJECT_ID) {
+      await saveToFirebase('subscribers', list);
+    }
     return { success: true, alreadySubscribed: false, entry: newEntry };
   } catch (err) {
-    console.error('Error saving subscriber to JSON:', err);
+    console.error('Error saving subscriber:', err);
     return { success: false, error: err.message };
   }
 }
@@ -423,12 +522,12 @@ async function getInquiryByToken(token) {
     }
   }
 
-  // Fallback
+  // Firebase / JSON Fallback
   try {
-    const list = readData();
+    const list = await readDataAsync();
     return list.find(i => i.trackingToken === token) || null;
   } catch (err) {
-    console.error('Error fetching inquiry by token from JSON:', err);
+    console.error('Error fetching inquiry by token:', err);
     return null;
   }
 }
@@ -452,19 +551,19 @@ async function updateInquiryMilestones(id, milestones) {
     }
   }
 
-  // Fallback
+  // Firebase / JSON Fallback
   try {
-    const list = readData();
+    const list = await readDataAsync();
     const idx = list.findIndex(i => i.id === numId);
     if (idx !== -1) {
       list[idx].milestones = milestones;
       list[idx].updatedAt = new Date().toISOString();
-      writeData(list);
+      await writeDataAsync(list);
       return { success: true, inquiry: list[idx] };
     }
     return { success: false, message: 'Inquiry not found.' };
   } catch (err) {
-    console.error('Error updating inquiry milestones in JSON:', err);
+    console.error('Error updating inquiry milestones:', err);
     return { success: false, error: err.message };
   }
 }

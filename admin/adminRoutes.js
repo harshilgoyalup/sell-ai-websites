@@ -111,7 +111,7 @@ router.get('/', authenticateAdmin, async (req, res) => {
 
     query += ' ORDER BY createdAt DESC';
     const inquiries = await db.all(query, params);
-    const subscribersList = getSubscribers();
+    const subscribersList = await getSubscribers();
 
     res.render('pages/admin', {
       stats: statsFormatted,
