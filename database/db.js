@@ -83,14 +83,16 @@ async function saveToFirebase(collectionName, data) {
 // ----------------------------------------------------
 // MONGODB ATLAS CLOUD LAYER
 // ----------------------------------------------------
+const DEFAULT_MONGO_URI = "mongodb+srv://arveharshil_db_user:MACa7WCpf0wYzJdW@cluster0.hjkukxq.mongodb.net/sell-ai-websites?retryWrites=true&w=majority";
 let isMongoConnected = false;
 
 async function connectMongo() {
-  if (!process.env.MONGODB_URI) return false;
+  const uri = process.env.MONGODB_URI || DEFAULT_MONGO_URI;
+  if (!uri) return false;
   if (isMongoConnected && mongoose.connection.readyState === 1) return true;
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(uri, {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000
     });
