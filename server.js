@@ -58,9 +58,9 @@ app.get('/', (req, res) => {
 });
 
 // Import and Register Routes
-const inquiryApi = require('./api/inquiryRoutes');
-const subscribeApi = require('./api/subscribeRoutes');
-const trackerRoutes = require('./api/trackerRoutes');
+const inquiryApi = require('./routes/inquiryRoutes');
+const subscribeApi = require('./routes/subscribeRoutes');
+const trackerRoutes = require('./routes/trackerRoutes');
 const adminRoutes = require('./admin/adminRoutes');
 
 app.use('/', trackerRoutes);
