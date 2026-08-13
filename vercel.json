@@ -8,7 +8,8 @@
         "includeFiles": [
           "views/**",
           "data/**",
-          "database/**"
+          "database/**",
+          "public/**"
         ]
       }
     }
