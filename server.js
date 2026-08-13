@@ -13,11 +13,6 @@ const faqs = require('./data/faqs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize Database
-initDb()
-  .then(() => console.log('SQLite Database Initialized.'))
-  .catch((err) => console.error('Database Initialization Failed:', err));
-
 // Express Session Setup — Fast & Reliable Serverless Sessions
 app.use(
   session({
