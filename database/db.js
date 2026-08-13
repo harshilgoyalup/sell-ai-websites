@@ -36,46 +36,40 @@ function getFirebaseUrl(collectionName) {
 }
 
 async function fetchFromFirebase(collectionName) {
+  if (!FIREBASE_PROJECT_ID) return null;
   const url = getFirebaseUrl(collectionName);
   if (!url) return null;
   try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      // Fallback try standard domain without -default-rtdb
-      const altUrl = `https://${FIREBASE_PROJECT_ID}.firebaseio.com/${collectionName}.json` + (FIREBASE_API_KEY ? `?auth=${FIREBASE_API_KEY}` : '');
-      const altRes = await fetch(altUrl);
-      if (!altRes.ok) return null;
-      const altData = await altRes.json();
-      return Array.isArray(altData) ? altData : (altData ? Object.values(altData) : []);
-    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (!res.ok) return null;
     const data = await res.json();
     if (!data) return [];
     return Array.isArray(data) ? data : Object.values(data);
   } catch (err) {
-    console.error(`Firebase fetch error [${collectionName}]:`, err.message);
     return null;
   }
 }
 
 async function saveToFirebase(collectionName, data) {
+  if (!FIREBASE_PROJECT_ID) return false;
   const url = getFirebaseUrl(collectionName);
   if (!url) return false;
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
     await fetch(url, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      signal: controller.signal
     });
-    // Also update alt domain
-    const altUrl = `https://${FIREBASE_PROJECT_ID}.firebaseio.com/${collectionName}.json` + (FIREBASE_API_KEY ? `?auth=${FIREBASE_API_KEY}` : '');
-    fetch(altUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).catch(() => {});
+    clearTimeout(timer);
     return true;
   } catch (err) {
-    console.error(`Firebase save error [${collectionName}]:`, err.message);
     return false;
   }
 }
