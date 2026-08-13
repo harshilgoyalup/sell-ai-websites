@@ -13,6 +13,17 @@ const faqs = require('./data/faqs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Set up EJS View Engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Serve Static Assets
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Body Parser Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Express Session Setup — Fast & Reliable Serverless Sessions
 app.use(
   session({
