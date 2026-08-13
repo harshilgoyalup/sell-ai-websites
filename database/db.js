@@ -27,21 +27,17 @@ const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 
 function getFirebaseUrl(collectionName) {
-  if (!FIREBASE_PROJECT_ID) return null;
+  if (!FIREBASE_PROJECT_ID || FIREBASE_PROJECT_ID.includes('main-important') || FIREBASE_PROJECT_ID.includes('dummy')) return null;
   let baseUrl = `https://${FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com/${collectionName}.json`;
-  if (!baseUrl.includes('firebaseio.com')) {
-    baseUrl = `https://${FIREBASE_PROJECT_ID}.firebaseio.com/${collectionName}.json`;
-  }
   return FIREBASE_API_KEY ? `${baseUrl}?auth=${FIREBASE_API_KEY}` : baseUrl;
 }
 
 async function fetchFromFirebase(collectionName) {
-  if (!FIREBASE_PROJECT_ID) return null;
-  const url = getFirebaseUrl(collectionName);
-  if (!url) return null;
   try {
+    const url = getFirebaseUrl(collectionName);
+    if (!url) return null;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
+    const timer = setTimeout(() => controller.abort(), 1500);
     const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timer);
 
@@ -55,12 +51,11 @@ async function fetchFromFirebase(collectionName) {
 }
 
 async function saveToFirebase(collectionName, data) {
-  if (!FIREBASE_PROJECT_ID) return false;
-  const url = getFirebaseUrl(collectionName);
-  if (!url) return false;
   try {
+    const url = getFirebaseUrl(collectionName);
+    if (!url) return false;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
+    const timer = setTimeout(() => controller.abort(), 1500);
     await fetch(url, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
